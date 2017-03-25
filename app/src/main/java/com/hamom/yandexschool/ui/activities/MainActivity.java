@@ -1,10 +1,13 @@
-package com.hamom.yandexschool;
+package com.hamom.yandexschool.ui.activities;
 
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
+import android.widget.FrameLayout;
+import com.hamom.yandexschool.R;
+import com.hamom.yandexschool.ui.fragments.translation.TranslationFragment;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -17,6 +20,10 @@ public class MainActivity extends AppCompatActivity {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_main);
 
+    FrameLayout mainFrame = ((FrameLayout) findViewById(R.id.main_frame));
+
+    TranslationFragment fragment = new TranslationFragment();
+    getSupportFragmentManager().beginTransaction().add(R.id.main_frame, fragment).commit();
 
     BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
     navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
