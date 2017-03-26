@@ -1,5 +1,6 @@
 package com.hamom.yandexschool.di.modules;
 
+import com.hamom.yandexschool.data.managers.DataManager;
 import com.hamom.yandexschool.di.scopes.TranslationScope;
 import com.hamom.yandexschool.mvp_contract.TranslationContract;
 import com.hamom.yandexschool.ui.fragments.translation.TranslationPresenter;
@@ -13,7 +14,7 @@ import dagger.Provides;
 public class TranslationModule {
   @Provides
   @TranslationScope
-  TranslationContract.TranslationPresenter provideTranslationPresenter() {
-    return new TranslationPresenter();
+  TranslationContract.TranslationPresenter provideTranslationPresenter(DataManager dataManager) {
+    return new TranslationPresenter(dataManager);
   }
 }

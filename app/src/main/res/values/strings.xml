@@ -6,4 +6,5 @@
   <string name="translate">Перевод</string>
   <string name="favorite">Избранное</string>
   <string name="history">История</string>
+  <string name="no_internet_connectiviti">Нет подключения к интернет. Попробуйте позже.</string>
 </resources>

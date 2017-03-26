@@ -5,5 +5,5 @@ package com.hamom.yandexschool.mvp_contract;
  */
 
 public interface IView {
-  void onBackPressed();
+  boolean onBackPressed();
 }

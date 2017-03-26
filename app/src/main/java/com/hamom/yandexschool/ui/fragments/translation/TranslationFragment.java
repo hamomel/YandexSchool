@@ -1,18 +1,29 @@
 package com.hamom.yandexschool.ui.fragments.translation;
 
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.TextView;
+import android.widget.Toast;
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
+import butterknife.OnTextChanged;
 import com.hamom.yandexschool.R;
 import com.hamom.yandexschool.di.modules.TranslationModule;
 import com.hamom.yandexschool.mvp_contract.TranslationContract;
 import com.hamom.yandexschool.utils.App;
 import com.hamom.yandexschool.utils.AppConfig;
 import com.hamom.yandexschool.utils.ConstantManager;
+import java.util.List;
 import javax.inject.Inject;
 
 /**
@@ -21,6 +32,37 @@ import javax.inject.Inject;
 
 public class TranslationFragment extends Fragment implements TranslationContract.TranslationView {
   private static String TAG = ConstantManager.TAG_PREFIX + "TransFragment: ";
+
+  @BindView(R.id.translation_tv)
+  TextView translationTv;
+
+  @BindView(R.id.user_input_et)
+  EditText userInputEt;
+
+  private Handler mHandler;
+  private Runnable mTranslateRunnable;
+
+  //region===================== Events ==========================
+    @OnClick(R.id.clear_button_ib)
+    void onClearClick(){
+      if (AppConfig.DEBUG) Log.d(TAG, "onClearClick: ");
+
+      userInputEt.setText("");
+    }
+
+    @OnTextChanged(R.id.user_input_et)
+    void onTextChanged(final CharSequence text){
+      if (AppConfig.DEBUG) Log.d(TAG, "onUserInputChanged: ");
+
+      mHandler.removeCallbacks(mTranslateRunnable);
+      if (!TextUtils.isEmpty(text)){
+        mHandler.postDelayed(mTranslateRunnable, 1000);
+      } else {
+        translationTv.setText("");
+      }
+    }
+  //endregion
+
   @Inject
   TranslationContract.TranslationPresenter mPresenter;
 
@@ -28,7 +70,7 @@ public class TranslationFragment extends Fragment implements TranslationContract
   public void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     if (AppConfig.DEBUG) Log.d(TAG, "onCreate: ");
-
+    createRunnable();
     App.getAppComponent().getTranslationComponent(new TranslationModule()).inject(this);
   }
 
@@ -39,6 +81,7 @@ public class TranslationFragment extends Fragment implements TranslationContract
       @Nullable Bundle savedInstanceState) {
     Log.d(TAG, "onCreateView: ");
     View v = inflater.inflate(R.layout.fragment_translation, container, false);
+    ButterKnife.bind(this, v);
     mPresenter.takeView(this);
     return v;
   }
@@ -46,19 +89,40 @@ public class TranslationFragment extends Fragment implements TranslationContract
   @Override
   public void onDestroyView() {
     super.onDestroyView();
-    if (AppConfig.DEBUG) Log.d(TAG, "onDestroyView: ");
-
     mPresenter.dropView();
   }
 
-  @Override
-  public void onDestroy() {
-    super.onDestroy();
-    if (AppConfig.DEBUG) Log.d(TAG, "onDestroy: ");
+  private void createRunnable(){
+    mHandler = new Handler();
+    mTranslateRunnable = new Runnable() {
+      @Override
+      public void run() {
+        mPresenter.translate(userInputEt.getText().toString());
+      }
+    };
   }
 
   @Override
-  public void onBackPressed() {
+  public boolean onBackPressed() {
+    return false;
+  }
 
+  @Override
+  public void updateTranslation(List<String> text) {
+    StringBuilder sb = new StringBuilder();
+    for (String s : text) {
+      sb.append(s).append("\n");
+    }
+    translationTv.setText(sb.toString());
+  }
+
+  @Override
+  public void showMessage(String message) {
+    Toast.makeText(getContext(), message, Toast.LENGTH_LONG).show();
+  }
+
+  @Override
+  public void showNoNetworkMessage() {
+    Toast.makeText(getContext(), getString(R.string.no_internet_connectiviti), Toast.LENGTH_SHORT).show();
   }
 }

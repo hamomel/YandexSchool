@@ -31,7 +31,9 @@ public class DataManager {
         if (response.code() == 200){
           callback.onSuccess(response.body());
         } else {
-          callback.onFailure(new ApiError(response.code()));
+          if (response.code() != 400){
+            callback.onFailure(new ApiError(response.code()));
+          }
         }
       }
 

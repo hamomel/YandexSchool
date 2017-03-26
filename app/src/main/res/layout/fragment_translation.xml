@@ -33,7 +33,7 @@
             android:layout_marginBottom="24dp"
             />
         <ImageButton
-            android:id="@+id/clear_button_iv"
+            android:id="@+id/clear_button_ib"
             style="@style/Widget.AppCompat.Button.Borderless"
             android:layout_width="24dp"
             android:layout_height="24dp"
@@ -47,7 +47,6 @@
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"
           android:layout_marginTop="16dp"
-          android:text="Перевод"
           />
     </LinearLayout>
   </ScrollView>
