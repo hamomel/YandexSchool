@@ -10,7 +10,7 @@ android {
     versionCode 1
     versionName "1.0"
     testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
-    vectorDrawables.useSupportLibrary = true
+    vectorDrawables.useSupportLibrary = false
   }
   buildTypes {
     release {
@@ -29,11 +29,12 @@ dependencies {
   compile 'com.android.support:design:25.3.0'
   compile 'com.android.support:support-vector-drawable:25.3.0'
   testCompile 'junit:junit:4.12'
+  testCompile 'org.mockito:mockito-core:2.7.19'
+  testCompile 'com.squareup.okhttp3:mockwebserver:3.6.0'
 
   //Dagger2
   annotationProcessor 'com.google.dagger:dagger-compiler:2.10'
   compile 'com.google.dagger:dagger:2.10'
-//  provided 'javax.annotation:jsr250-api:1.0'
 
   //Network
   compile 'com.squareup.retrofit2:retrofit:2.2.0'

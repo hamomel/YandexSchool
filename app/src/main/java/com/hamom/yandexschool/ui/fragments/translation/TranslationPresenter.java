@@ -64,13 +64,13 @@ public class TranslationPresenter implements
     // TODO: 27.03.17 remove this
     mToLang = "ru";
 
-    mDataManager.translate(text, mToLang, new DataManager.ReqCallback() {
+    mDataManager.translate(text, mToLang, new DataManager.ReqCallback<TranslateRes>() {
       @Override
-      public void onSuccess(Object res) {
+      public void onSuccess(TranslateRes res) {
         if (AppConfig.DEBUG) Log.d(TAG, "onSuccess: ");
 
         if (hasView()){
-          getView().updateTranslation(((TranslateRes) res).getText());
+          getView().updateTranslation(res.getText());
         }
       }
 

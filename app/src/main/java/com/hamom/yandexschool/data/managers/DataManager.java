@@ -44,8 +44,8 @@ public class DataManager {
     });
   }
 
-  public interface ReqCallback {
-    void onSuccess(Object res);
+  public interface ReqCallback<R> {
+    void onSuccess(R res);
     void onFailure(Throwable e);
   }
 }
