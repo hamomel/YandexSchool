@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -20,6 +21,7 @@ import butterknife.OnTextChanged;
 import com.hamom.yandexschool.R;
 import com.hamom.yandexschool.di.modules.TranslationModule;
 import com.hamom.yandexschool.mvp_contract.TranslationContract;
+import com.hamom.yandexschool.ui.activities.MainActivity;
 import com.hamom.yandexschool.utils.App;
 import com.hamom.yandexschool.utils.AppConfig;
 import com.hamom.yandexschool.utils.ConstantManager;
@@ -124,5 +126,10 @@ public class TranslationFragment extends Fragment implements TranslationContract
   @Override
   public void showNoNetworkMessage() {
     Toast.makeText(getContext(), getString(R.string.no_internet_connectiviti), Toast.LENGTH_SHORT).show();
+  }
+
+  @Override
+  public boolean isNetworkAvailable() {
+    return ((MainActivity) getActivity()).isNetworkAvailable();
   }
 }

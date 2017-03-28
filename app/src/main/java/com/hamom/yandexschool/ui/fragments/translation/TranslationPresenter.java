@@ -1,18 +1,13 @@
 package com.hamom.yandexschool.ui.fragments.translation;
 
-import android.net.Network;
-import android.provider.Settings;
 import android.support.annotation.Nullable;
-import android.text.TextUtils;
 import android.util.Log;
 import com.hamom.yandexschool.data.managers.DataManager;
-import com.hamom.yandexschool.data.network.responce.TranslateRes;
+import com.hamom.yandexschool.data.local.models.Translation;
 import com.hamom.yandexschool.di.scopes.TranslationScope;
 import com.hamom.yandexschool.mvp_contract.TranslationContract;
 import com.hamom.yandexschool.utils.AppConfig;
 import com.hamom.yandexschool.utils.ConstantManager;
-import com.hamom.yandexschool.utils.NetworkStatusChecker;
-import javax.inject.Inject;
 
 /**
  * Created by hamom on 25.03.17.
@@ -31,12 +26,10 @@ public class TranslationPresenter implements
   }
 
   public void takeView(TranslationContract.TranslationView view) {
-    Log.d(TAG, "takeView: " + hashCode());
     mView = view;
   }
 
   public void dropView() {
-    Log.d(TAG, "dropView: " + hashCode());
     mView = null;
   }
 
@@ -50,11 +43,14 @@ public class TranslationPresenter implements
     return mView != null;
   }
 
+  /**
+   * get translation for given word from local or network
+   * @param text text to translate
+   */
   @Override
   public void translate(String text) {
-    if (AppConfig.DEBUG) Log.d(TAG, "translate: " + text);
 
-    if (!NetworkStatusChecker.isNetworkAvailable()){
+    if (!getView().isNetworkAvailable()){
       if (hasView()){
         getView().showNoNetworkMessage();
       }
@@ -64,13 +60,21 @@ public class TranslationPresenter implements
     // TODO: 27.03.17 remove this
     mToLang = "ru";
 
-    mDataManager.translate(text, mToLang, new DataManager.ReqCallback<TranslateRes>() {
+    mDataManager.translate(text, mToLang, getTranslateCallback());
+  }
+
+  /**
+   * make callback to receive translation and update view
+   * @return
+   */
+  private DataManager.ReqCallback<Translation> getTranslateCallback(){
+    return new DataManager.ReqCallback<Translation>() {
       @Override
-      public void onSuccess(TranslateRes res) {
+      public void onSuccess(Translation translation) {
         if (AppConfig.DEBUG) Log.d(TAG, "onSuccess: ");
 
         if (hasView()){
-          getView().updateTranslation(res.getText());
+          getView().updateTranslation(translation.getTranslations());
         }
       }
 
@@ -81,6 +85,6 @@ public class TranslationPresenter implements
           getView().showMessage(e.getMessage());
         }
       }
-    });
+    };
   }
 }

@@ -2,6 +2,7 @@ package com.hamom.yandexschool.utils;
 
 import android.app.Application;
 import android.content.Context;
+import com.facebook.stetho.Stetho;
 import com.hamom.yandexschool.di.components.AppComponent;
 import com.hamom.yandexschool.di.components.DaggerAppComponent;
 import com.hamom.yandexschool.di.modules.AppModule;
@@ -20,6 +21,7 @@ public class App extends Application{
     super.onCreate();
     sContext = getApplicationContext();
     createAppComponent();
+    Stetho.initializeWithDefaults(getAppContext());
   }
 
   public static Context getAppContext() {
@@ -32,7 +34,7 @@ public class App extends Application{
 
   private void createAppComponent(){
     mAppComponent = DaggerAppComponent.builder()
-        .appModule(new AppModule())
+        .appModule(new AppModule(getAppContext()))
         .build();
   }
 }

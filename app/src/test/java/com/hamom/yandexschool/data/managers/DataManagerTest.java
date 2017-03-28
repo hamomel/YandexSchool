@@ -1,9 +1,9 @@
 package com.hamom.yandexschool.data.managers;
 
+import com.hamom.yandexschool.data.local.database.DbManager;
+import com.hamom.yandexschool.data.local.models.Translation;
 import com.hamom.yandexschool.data.network.RestService;
-import com.hamom.yandexschool.data.network.responce.TranslateRes;
 import com.hamom.yandexschool.resourses.MockTranslateRes;
-import com.hamom.yandexschool.utils.ApiError;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import okhttp3.mockwebserver.MockResponse;
@@ -11,6 +11,8 @@ import okhttp3.mockwebserver.MockWebServer;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
@@ -23,11 +25,16 @@ public class DataManagerTest {
 
   private MockWebServer mMockWebServer;
   private DataManager mDataManager;
-  private TranslateRes mTestRes;
+
+  private Translation mTestRes;
   private Throwable mThrowable;
+
+  @Mock
+  private DbManager mDbManager;
 
   @Before
   public void setUp() throws Exception {
+    MockitoAnnotations.initMocks(this);
     mMockWebServer = new MockWebServer();
 
     Retrofit retrofit = new Retrofit.Builder().baseUrl(mMockWebServer.url("").toString())
@@ -35,7 +42,7 @@ public class DataManagerTest {
         .build();
 
     RestService restService = retrofit.create(RestService.class);
-    mDataManager = new DataManager(restService);
+    mDataManager = new DataManager(restService, mDbManager);
   }
 
   @After
@@ -51,9 +58,9 @@ public class DataManagerTest {
         .setBody(MockTranslateRes.TRANSLATE_RES_200);
 
     mMockWebServer.enqueue(response);
-    mDataManager.translate("взгляд", "en", new DataManager.ReqCallback<TranslateRes>() {
+    mDataManager.translate("взгляд", "en", new DataManager.ReqCallback<Translation>() {
       @Override
-      public void onSuccess(TranslateRes res) {
+      public void onSuccess(Translation res) {
         mTestRes = res;
         lock.countDown();
       }
@@ -66,7 +73,7 @@ public class DataManagerTest {
 
     lock.await(1000, TimeUnit.MILLISECONDS);
     assertNotNull(mTestRes);
-    assertEquals(200, mTestRes.getCode());
+    assertEquals("mock", mTestRes.getTranslations().get(0));
     assertNull(mThrowable);
   }
 
@@ -77,9 +84,9 @@ public class DataManagerTest {
     MockResponse response = new MockResponse().setResponseCode(401);
 
     mMockWebServer.enqueue(response);
-    mDataManager.translate("взгляд", "en", new DataManager.ReqCallback<TranslateRes>() {
+    mDataManager.translate("взгляд", "en", new DataManager.ReqCallback<Translation>() {
       @Override
-      public void onSuccess(TranslateRes res) {
+      public void onSuccess(Translation res) {
         mTestRes = res;
       }
 

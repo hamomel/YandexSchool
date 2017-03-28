@@ -1,5 +1,8 @@
 package com.hamom.yandexschool.ui.activities;
 
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
@@ -9,6 +12,7 @@ import android.view.MenuItem;
 import android.widget.FrameLayout;
 import com.hamom.yandexschool.R;
 import com.hamom.yandexschool.ui.fragments.translation.TranslationFragment;
+import com.hamom.yandexschool.utils.App;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -50,4 +54,10 @@ public class MainActivity extends AppCompatActivity {
       };
   //endregion
 
+  public Boolean isNetworkAvailable(){
+    ConnectivityManager cm = (ConnectivityManager) getSystemService(
+        Context.CONNECTIVITY_SERVICE);
+    NetworkInfo networkInfo = cm.getActiveNetworkInfo();
+    return networkInfo != null && networkInfo.isConnectedOrConnecting();
+  }
 }

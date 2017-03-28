@@ -1,4 +1,4 @@
-package com.hamom.yandexschool.utils;
+package com.hamom.yandexschool.utils.errors;
 
 /**
  * Created by hamom on 25.03.17.

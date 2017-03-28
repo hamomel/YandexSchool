@@ -5,5 +5,5 @@ package com.hamom.yandexschool.utils;
  */
 
 public class ConstantManager {
-  public static final String TAG_PREFIX = "YSchool";
+  public static final String TAG_PREFIX = "YSchool: ";
 }

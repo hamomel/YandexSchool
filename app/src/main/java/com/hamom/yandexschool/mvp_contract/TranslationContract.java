@@ -22,6 +22,8 @@ public interface TranslationContract {
     void showMessage(String message);
 
     void showNoNetworkMessage();
+
+    boolean isNetworkAvailable();
   }
 
   public interface TranslationPresenter<V> extends IPresenter<V> {
