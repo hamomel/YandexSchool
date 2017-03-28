@@ -33,7 +33,7 @@ import javax.inject.Inject;
  */
 
 public class TranslationFragment extends Fragment implements TranslationContract.TranslationView {
-  private static String TAG = ConstantManager.TAG_PREFIX + "TransFragment: ";
+  private static String TAG = ConstantManager.TAG_PREFIX + "TransFrag: ";
 
   @BindView(R.id.translation_tv)
   TextView translationTv;

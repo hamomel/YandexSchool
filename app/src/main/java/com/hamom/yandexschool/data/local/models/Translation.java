@@ -58,4 +58,8 @@ public class Translation {
   public void changeFavorite() {
     favorite = !favorite;
   }
+
+  public void setTime(long time) {
+    time = time;
+  }
 }

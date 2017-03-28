@@ -60,7 +60,7 @@ public class TranslationPresenter implements
     // TODO: 27.03.17 remove this
     mToLang = "ru";
 
-    mDataManager.translate(text, mToLang, getTranslateCallback());
+    mDataManager.translate(text.trim(), mToLang, getTranslateCallback());
   }
 
   /**

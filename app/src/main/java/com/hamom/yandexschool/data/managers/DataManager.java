@@ -28,6 +28,7 @@ public class DataManager {
   }
 
   public void translate(final String text, final String lang, final ReqCallback<Translation> callback){
+
     Call<TranslateRes> call = mRestService.translate(AppConfig.API_KEY, text, lang);
     call.enqueue(new Callback<TranslateRes>() {
       @Override

@@ -33,7 +33,7 @@ public class DbHelper extends SQLiteOpenHelper {
       TranslateDbContract.WordEntry.COLUMN_NAME_TRANSLATION_ID + INTEGER_TYPE + COMMA_SEP +
       " FOREIGN KEY(" + TranslateDbContract.WordEntry.COLUMN_NAME_TRANSLATION_ID + ")" +
       " REFERENCES " + TranslateDbContract.TransEntry.TABLE_NAME + "(" +
-      TranslateDbContract.TransEntry._ID + ")" +
+      TranslateDbContract.TransEntry.COLUMN_NAME_ID + ")" +
       " )";
 
   @Inject
