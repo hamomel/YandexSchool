@@ -29,6 +29,13 @@ public class DataManager {
 
   public void translate(final String text, final String lang, final ReqCallback<Translation> callback){
 
+    Translation translation = new Translation(text, lang);
+
+    if (mDbManager.checkAlreadyExist(translation) != null){
+      callback.onSuccess(translation);
+      return;
+    }
+
     Call<TranslateRes> call = mRestService.translate(AppConfig.API_KEY, text, lang);
     call.enqueue(new Callback<TranslateRes>() {
       @Override

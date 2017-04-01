@@ -23,7 +23,7 @@ public class DbHelper extends SQLiteOpenHelper {
       TranslateDbContract.TransEntry.TABLE_NAME + " (" +
       TranslateDbContract.TransEntry.COLUMN_NAME_WORD + TEXT_TYPE + COMMA_SEP +
       TranslateDbContract.TransEntry.COLUMN_NAME_DIRECTION + TEXT_TYPE + COMMA_SEP +
-      TranslateDbContract.TransEntry.COLUMN_NAME_TIME + INTEGER_TYPE +
+      TranslateDbContract.TransEntry.COLUMN_NAME_TIME + INTEGER_TYPE + COMMA_SEP +
       TranslateDbContract.TransEntry.COLUMN_NAME_FAVORITE + INTEGER_TYPE +
       " )";
 

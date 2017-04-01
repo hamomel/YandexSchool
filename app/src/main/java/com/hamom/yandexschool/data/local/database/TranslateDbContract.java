@@ -1,7 +1,5 @@
 package com.hamom.yandexschool.data.local.database;
 
-import android.provider.BaseColumns;
-
 /**
  * Created by hamom on 28.03.17.
  */

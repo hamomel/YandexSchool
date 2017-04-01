@@ -58,7 +58,7 @@ public class TranslationFragment extends Fragment implements TranslationContract
 
       mHandler.removeCallbacks(mTranslateRunnable);
       if (!TextUtils.isEmpty(text)){
-        mHandler.postDelayed(mTranslateRunnable, 1000);
+        mHandler.postDelayed(mTranslateRunnable, ConstantManager.TRANSLATION_DELAY_MILLIS);
       } else {
         translationTv.setText("");
       }

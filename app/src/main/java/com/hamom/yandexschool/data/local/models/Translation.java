@@ -31,6 +31,11 @@ public class Translation {
     this.favorite = favorite;
   }
 
+  public Translation(String word, String direction) {
+    this.word = word;
+    this.direction = direction;
+  }
+
   public long getId() {
     return id;
   }
@@ -61,5 +66,25 @@ public class Translation {
 
   public void setTime(long time) {
     time = time;
+  }
+
+  public void setId(long id) {
+    this.id = id;
+  }
+
+  public void setWord(String word) {
+    this.word = word;
+  }
+
+  public void setTranslations(List<String> translations) {
+    this.translations = translations;
+  }
+
+  public void setDirection(String direction) {
+    this.direction = direction;
+  }
+
+  public void setFavorite(boolean favorite) {
+    this.favorite = favorite;
   }
 }

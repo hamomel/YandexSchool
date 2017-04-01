@@ -6,4 +6,5 @@ package com.hamom.yandexschool.utils;
 
 public class ConstantManager {
   public static final String TAG_PREFIX = "YSchool: ";
+  public static final int TRANSLATION_DELAY_MILLIS = 1500;
 }
