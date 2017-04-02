@@ -2,6 +2,7 @@ package com.hamom.yandexschool.data.managers;
 
 import com.hamom.yandexschool.data.local.database.DbManager;
 import com.hamom.yandexschool.data.network.RestService;
+import com.hamom.yandexschool.data.network.responce.LangsRes;
 import com.hamom.yandexschool.data.network.responce.TranslateRes;
 import com.hamom.yandexschool.data.local.models.Translation;
 import com.hamom.yandexschool.utils.errors.ApiError;
@@ -61,6 +62,26 @@ public class DataManager {
         callback.onFailure(t);
       }
     });
+  }
+
+  public void getLangs(String ui, final ReqCallback<LangsRes> callback){
+    Call<LangsRes> call = mRestService.getLangs(ui, AppConfig.API_KEY);
+    call.enqueue(new Callback<LangsRes>() {
+      @Override
+      public void onResponse(Call<LangsRes> call, Response<LangsRes> response) {
+        if (response.code() == 200){
+          callback.onSuccess(response.body());
+        } else {
+          callback.onFailure(new ApiError(response.code()));
+        }
+      }
+
+      @Override
+      public void onFailure(Call<LangsRes> call, Throwable t) {
+        callback.onFailure(t);
+      }
+    });
+
   }
 
   public interface ReqCallback<R> {

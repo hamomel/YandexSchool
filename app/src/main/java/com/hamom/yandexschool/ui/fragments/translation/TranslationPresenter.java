@@ -4,10 +4,14 @@ import android.support.annotation.Nullable;
 import android.util.Log;
 import com.hamom.yandexschool.data.managers.DataManager;
 import com.hamom.yandexschool.data.local.models.Translation;
+import com.hamom.yandexschool.data.network.responce.LangsRes;
 import com.hamom.yandexschool.di.scopes.TranslationScope;
 import com.hamom.yandexschool.mvp_contract.TranslationContract;
 import com.hamom.yandexschool.utils.AppConfig;
 import com.hamom.yandexschool.utils.ConstantManager;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
 
 /**
  * Created by hamom on 25.03.17.
@@ -20,9 +24,13 @@ public class TranslationPresenter implements
   private TranslationContract.TranslationView mView;
   private DataManager mDataManager;
   private String mToLang;
+  private Map<String, String> mLangs;
 
   public TranslationPresenter(DataManager dataManager) {
+    // TODO: 27.03.17 remove this
+    mToLang = "ru";
     mDataManager = dataManager;
+    fillLangs();
   }
 
   public void takeView(TranslationContract.TranslationView view) {
@@ -50,17 +58,49 @@ public class TranslationPresenter implements
   @Override
   public void translate(String text) {
 
+    if (checkNetwork()) return;
+
+    mDataManager.translate(text.trim(), mToLang, getTranslateCallback());
+  }
+
+  private void fillLangs(){
+    String sysLang = Locale.getDefault().getDisplayLanguage();
+    String ui = sysLang.equals("русский") ? "ru" : "en";
+    mDataManager.getLangs(ui, getLangsCallback());
+  }
+
+
+
+  private boolean checkNetwork() {
     if (!getView().isNetworkAvailable()){
       if (hasView()){
         getView().showNoNetworkMessage();
       }
-      return;
+      return true;
     }
+    return false;
+  }
 
-    // TODO: 27.03.17 remove this
-    mToLang = "ru";
+  /**
+   * make callback to receive map of languages
+   * @return
+   */
+  private DataManager.ReqCallback<LangsRes> getLangsCallback() {
+    return new DataManager.ReqCallback<LangsRes>() {
+      @Override
+      public void onSuccess(LangsRes res) {
+        if (AppConfig.DEBUG) Log.d(TAG, "onSuccess: " + res.getLangs());
 
-    mDataManager.translate(text.trim(), mToLang, getTranslateCallback());
+        mLangs = res.getLangs();
+      }
+
+      @Override
+      public void onFailure(Throwable e) {
+        if (hasView()){
+          getView().showMessage(e.getMessage());
+        }
+      }
+    };
   }
 
   /**

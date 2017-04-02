@@ -1,5 +1,6 @@
 package com.hamom.yandexschool.data.network;
 
+import com.hamom.yandexschool.data.network.responce.LangsRes;
 import com.hamom.yandexschool.data.network.responce.TranslateRes;
 import retrofit2.Call;
 import retrofit2.http.POST;
@@ -14,5 +15,8 @@ public interface RestService {
   @POST("translate")
   Call<TranslateRes> translate(@Query("key") String key,
       @Query("text") String text, @Query("lang") String lang);
+
+  @POST("getLangs")
+  Call<LangsRes> getLangs(@Query("ui") String ui, @Query("key") String key);
 
 }

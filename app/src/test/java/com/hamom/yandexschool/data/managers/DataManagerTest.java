@@ -17,6 +17,8 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 import static org.junit.Assert.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 
 /**
  * Created by hamom on 27.03.17.
@@ -100,6 +102,27 @@ public class DataManagerTest {
     lock.await(1000, TimeUnit.MILLISECONDS);
     assertEquals("Не возможно получить ответ сервера. Код ошибки: 401", mThrowable.getMessage());
     assertNull(mTestRes);
+  }
+
+  @Test
+  public void translate_ALREADY_EXIST() throws Exception {
+    final CountDownLatch lock = new CountDownLatch(1);
+
+    when(mDbManager.checkAlreadyExist(any(Translation.class))).thenReturn(new Translation("взгляд", "en"));
+    mDataManager.translate("взгляд", "en", new DataManager.ReqCallback<Translation>() {
+      @Override
+      public void onSuccess(Translation res) {
+        mTestRes = res;
+        lock.countDown();
+      }
+
+      @Override
+      public void onFailure(Throwable e) {
+      }
+    });
+
+    lock.await(1000, TimeUnit.MILLISECONDS);
+    assertEquals("взгляд", mTestRes.getWord());
   }
 
 }

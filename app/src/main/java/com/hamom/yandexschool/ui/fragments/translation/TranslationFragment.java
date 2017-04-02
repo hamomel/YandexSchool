@@ -71,6 +71,7 @@ public class TranslationFragment extends Fragment implements TranslationContract
   @Override
   public void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
+    setRetainInstance(true);
     if (AppConfig.DEBUG) Log.d(TAG, "onCreate: ");
     createRunnable();
     App.getAppComponent().getTranslationComponent(new TranslationModule()).inject(this);
@@ -89,8 +90,8 @@ public class TranslationFragment extends Fragment implements TranslationContract
   }
 
   @Override
-  public void onDestroyView() {
-    super.onDestroyView();
+  public void onDestroy() {
+    super.onDestroy();
     mPresenter.dropView();
   }
 

@@ -8,22 +8,43 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
+import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.FrameLayout;
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import com.hamom.yandexschool.R;
 import com.hamom.yandexschool.ui.fragments.translation.TranslationFragment;
 import com.hamom.yandexschool.utils.App;
+import com.hamom.yandexschool.utils.AppConfig;
+import com.hamom.yandexschool.utils.ConstantManager;
+import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
-
-
+  private static String TAG = ConstantManager.TAG_PREFIX + "MainActivity: ";
   private FragmentManager mFragmentManager;
+
+  @BindView(R.id.toolbar)
+  Toolbar toolbar;
 
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_main);
+    ButterKnife.bind(this);
+    setSupportActionBar(toolbar);
+    getSupportActionBar().setDisplayShowTitleEnabled(false);
+    getSupportActionBar().setDisplayUseLogoEnabled(true);
+    LayoutInflater inflater = ((LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE));
+    View view = inflater.inflate(R.layout.toolbar_main_view, toolbar);
+    //toolbar.addView(view);
+
+    if (AppConfig.DEBUG) Log.d(TAG, "onCreate: " + Locale.getDefault().getDisplayLanguage());
+
 
     mFragmentManager = getSupportFragmentManager();
     if (savedInstanceState == null){
