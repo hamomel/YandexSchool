@@ -9,9 +9,15 @@ import com.hamom.yandexschool.di.scopes.TranslationScope;
 import com.hamom.yandexschool.mvp_contract.TranslationContract;
 import com.hamom.yandexschool.utils.AppConfig;
 import com.hamom.yandexschool.utils.ConstantManager;
+import com.hamom.yandexschool.utils.NetworkStatusChecker;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Created by hamom on 25.03.17.
@@ -19,7 +25,7 @@ import java.util.Map;
 @TranslationScope
 public class TranslationPresenter implements
     TranslationContract.TranslationPresenter<TranslationContract.TranslationView> {
-  private static String TAG = ConstantManager.TAG_PREFIX + "TransPresenter: ";
+  private static String TAG = ConstantManager.TAG_PREFIX + "TransPres: ";
 
   private TranslationContract.TranslationView mView;
   private DataManager mDataManager;
@@ -29,12 +35,19 @@ public class TranslationPresenter implements
   public TranslationPresenter(DataManager dataManager) {
     // TODO: 27.03.17 remove this
     mToLang = "ru";
+
+    mLangs = new HashMap<>();
     mDataManager = dataManager;
     fillLangs();
   }
 
   public void takeView(TranslationContract.TranslationView view) {
     mView = view;
+    if (!mView.hasLangs()){
+      if (!mLangs.isEmpty()){
+        setViewLangs();
+      }
+    }
   }
 
   public void dropView() {
@@ -54,16 +67,46 @@ public class TranslationPresenter implements
   /**
    * get translation for given word from local or network
    * @param text text to translate
+   * @param from
    */
   @Override
-  public void translate(String text) {
-
+  public void translate(String text, String from, String to) {
     if (checkNetwork()) return;
 
-    mDataManager.translate(text.trim(), mToLang, getTranslateCallback());
+    String direction = mLangs.get(from) + "-" + mLangs.get(to);
+    if (AppConfig.DEBUG) Log.d(TAG, "translate: " + direction + " " + text);
+
+    mDataManager.translate(text.trim(), direction, getTranslateCallback());
+  }
+
+  @Override
+  public List<String> getLangs() {
+    List<String> list = new ArrayList<>();
+    if (mLangs != null) {
+      list.addAll(mLangs.keySet());
+    }
+    sortAlphabeticaly(list);
+    return list;
+  }
+
+  @Override
+  public void saveLastlangs(String langFrom, String langTo) {
+    mDataManager.saveLastLangs(langFrom, langTo);
+  }
+
+  private void sortAlphabeticaly(List<String> list){
+    Collections.sort(list, new Comparator<String>()
+    {
+      @Override
+      public int compare(String text1, String text2)
+      {
+        return text1.compareToIgnoreCase(text2);
+      }
+    });
   }
 
   private void fillLangs(){
+    if (checkNetwork()) return;
     String sysLang = Locale.getDefault().getDisplayLanguage();
     String ui = sysLang.equals("русский") ? "ru" : "en";
     mDataManager.getLangs(ui, getLangsCallback());
@@ -72,13 +115,20 @@ public class TranslationPresenter implements
 
 
   private boolean checkNetwork() {
-    if (!getView().isNetworkAvailable()){
+    if (!NetworkStatusChecker.isNetworkAvailable()){
       if (hasView()){
         getView().showNoNetworkMessage();
       }
       return true;
     }
     return false;
+  }
+
+  private void setViewLangs() {
+    if (hasView()){
+      getView().setLangs(getLangs());
+      getView().setLastLangs(mDataManager.getLastlangs());
+    }
   }
 
   /**
@@ -90,8 +140,12 @@ public class TranslationPresenter implements
       @Override
       public void onSuccess(LangsRes res) {
         if (AppConfig.DEBUG) Log.d(TAG, "onSuccess: " + res.getLangs());
+        Set<Map.Entry<String, String>> set = res.getLangs().entrySet();
+        for (Map.Entry<String, String> entry : set) {
+          mLangs.put(entry.getValue(), entry.getKey());
+        }
 
-        mLangs = res.getLangs();
+        setViewLangs();
       }
 
       @Override
@@ -102,6 +156,7 @@ public class TranslationPresenter implements
       }
     };
   }
+
 
   /**
    * make callback to receive translation and update view

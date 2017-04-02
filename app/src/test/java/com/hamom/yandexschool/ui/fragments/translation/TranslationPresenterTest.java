@@ -1,16 +1,13 @@
 package com.hamom.yandexschool.ui.fragments.translation;
 
 import com.hamom.yandexschool.data.managers.DataManager;
-import com.hamom.yandexschool.data.network.responce.TranslateRes;
 import com.hamom.yandexschool.mvp_contract.TranslationContract;
-import com.hamom.yandexschool.utils.NetworkStatusChecker;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.never;
@@ -45,7 +42,7 @@ public class TranslationPresenterTest {
   public void translate_INTERNET_AVAILABLE() throws Exception {
     when(mView.isNetworkAvailable()).thenReturn(true);
     mPresenter.takeView(mView);
-    mPresenter.translate("anyString");
+    mPresenter.translate(userInputEt.getText().toString(), mLangFrom, "anyString");
     verify(mDataManager, times(1)).translate(anyString(), anyString(), any(DataManager.ReqCallback.class));
   }
 
@@ -53,7 +50,7 @@ public class TranslationPresenterTest {
   public void translate_INTERNET_UNAVAILABLE() throws Exception {
     when(mView.isNetworkAvailable()).thenReturn(false);
     mPresenter.takeView(mView);
-    mPresenter.translate("anyString");
+    mPresenter.translate(userInputEt.getText().toString(), mLangFrom, "anyString");
     verify(mDataManager, never()).translate(anyString(), anyString(), any(DataManager.ReqCallback.class));
     verify(mView, times(1)).showNoNetworkMessage();
   }

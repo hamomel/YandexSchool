@@ -1,17 +1,25 @@
 package com.hamom.yandexschool.ui.fragments.translation;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 import butterknife.BindView;
@@ -41,6 +49,23 @@ public class TranslationFragment extends Fragment implements TranslationContract
   @BindView(R.id.user_input_et)
   EditText userInputEt;
 
+  @BindView(R.id.toolbar)
+  Toolbar toolbar;
+
+  @BindView(R.id.spinner_from)
+  Spinner spinnerFrom;
+
+  @BindView(R.id.spinner_to)
+  Spinner spinnerTo;
+
+  @BindView(R.id.swap_language_iv)
+  ImageButton changeLanguageIv;
+
+
+  private String mLangFrom;
+  private String mLangTo;
+  private List<String> mLangs;
+
   private Handler mHandler;
   private Runnable mTranslateRunnable;
 
@@ -52,17 +77,34 @@ public class TranslationFragment extends Fragment implements TranslationContract
       userInputEt.setText("");
     }
 
-    @OnTextChanged(R.id.user_input_et)
-    void onTextChanged(final CharSequence text){
-      if (AppConfig.DEBUG) Log.d(TAG, "onUserInputChanged: ");
-
-      mHandler.removeCallbacks(mTranslateRunnable);
-      if (!TextUtils.isEmpty(text)){
-        mHandler.postDelayed(mTranslateRunnable, ConstantManager.TRANSLATION_DELAY_MILLIS);
-      } else {
-        translationTv.setText("");
-      }
+    @OnClick(R.id.user_input_layout)
+    void clickOnUserInputLayout(){
+      userInputEt.requestFocus();
+      InputMethodManager imm = (InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+      imm.showSoftInput(userInputEt, InputMethodManager.SHOW_IMPLICIT);
     }
+
+  @OnClick(R.id.swap_language_iv)
+    void onSwapClick(){
+      String tmp = mLangFrom;
+      mLangFrom = mLangTo;
+      mLangTo = tmp;
+      spinnerFrom.setSelection(mLangs.indexOf(mLangFrom));
+      spinnerTo.setSelection(mLangs.indexOf(mLangTo));
+      translate();
+    }
+
+  @OnTextChanged(R.id.user_input_et)
+  void onTextChanged(final CharSequence text){
+    if (AppConfig.DEBUG) Log.d(TAG, "onUserInputChanged: ");
+
+    mHandler.removeCallbacks(mTranslateRunnable);
+    if (!TextUtils.isEmpty(text)){
+      translate();
+    } else {
+      translationTv.setText("");
+    }
+  }
   //endregion
 
   @Inject
@@ -86,13 +128,81 @@ public class TranslationFragment extends Fragment implements TranslationContract
     View v = inflater.inflate(R.layout.fragment_translation, container, false);
     ButterKnife.bind(this, v);
     mPresenter.takeView(this);
+    initToolbar();
     return v;
+  }
+
+  private void initToolbar() {
+    AppCompatActivity activity = ((AppCompatActivity) getActivity());
+    activity.setSupportActionBar(toolbar);
+    activity.getSupportActionBar().setDisplayShowTitleEnabled(false);
+
+  }
+
+  private void initToSpinner() {
+    ArrayAdapter<String> adapter = new ArrayAdapter<String>(getContext(),
+        android.R.layout.simple_spinner_item, mPresenter.getLangs());
+    spinnerTo.setAdapter(adapter);
+    spinnerTo.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+      @Override
+      public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+        mLangTo = mLangs.get(position);
+      }
+
+      @Override
+      public void onNothingSelected(AdapterView<?> parent) {
+
+      }
+    });
+  }
+
+  private void initFromSpinner() {
+    if (AppConfig.DEBUG) Log.d(TAG, "initFromSpinner: ");
+
+    ArrayAdapter<String> adapter = new ArrayAdapter<String>(getContext(),
+        android.R.layout.simple_spinner_item, mPresenter.getLangs()){
+      @NonNull
+      @Override
+      public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
+        View v = super.getView(position, convertView, parent);
+        ((TextView) v).setGravity(Gravity.END);
+        return v;
+      }
+    };
+    spinnerFrom.setAdapter(adapter);
+    spinnerFrom.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+      @Override
+      public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+        mLangFrom = mLangs.get(position);
+        translate();
+      }
+
+      @Override
+      public void onNothingSelected(AdapterView<?> parent) {
+
+      }
+    });
+  }
+
+  @Override
+  public void onDestroyView() {
+    super.onDestroyView();
+    mPresenter.saveLastlangs(mLangFrom, mLangTo);
+
   }
 
   @Override
   public void onDestroy() {
     super.onDestroy();
+    if (AppConfig.DEBUG) Log.d(TAG, "onDestroy: ");
+
     mPresenter.dropView();
+  }
+
+  private void translate() {
+    if (!TextUtils.isEmpty(userInputEt.getText())){
+      mHandler.postDelayed(mTranslateRunnable, ConstantManager.TRANSLATION_DELAY_MILLIS);
+    }
   }
 
   private void createRunnable(){
@@ -100,7 +210,8 @@ public class TranslationFragment extends Fragment implements TranslationContract
     mTranslateRunnable = new Runnable() {
       @Override
       public void run() {
-        mPresenter.translate(userInputEt.getText().toString());
+        mPresenter.translate(userInputEt.getText().toString(), mLangFrom, mLangTo);
+        translate();
       }
     };
   }
@@ -132,5 +243,25 @@ public class TranslationFragment extends Fragment implements TranslationContract
   @Override
   public boolean isNetworkAvailable() {
     return ((MainActivity) getActivity()).isNetworkAvailable();
+  }
+
+  @Override
+  public void setLangs(List<String> langs) {
+    if (AppConfig.DEBUG) Log.d(TAG, "setLangs: " + langs);
+
+    mLangs = langs;
+    initFromSpinner();
+    initToSpinner();
+  }
+
+  @Override
+  public void setLastLangs(String[] lastlangs) {
+    if (!lastlangs[0].isEmpty()) spinnerFrom.setSelection(mLangs.indexOf(lastlangs[0]));
+    if (!lastlangs[1].isEmpty()) spinnerTo.setSelection(mLangs.indexOf(lastlangs[1]));
+  }
+
+  @Override
+  public boolean hasLangs() {
+    return !(mLangs == null || !mLangs.isEmpty());
   }
 }

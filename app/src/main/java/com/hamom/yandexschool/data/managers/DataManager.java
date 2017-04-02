@@ -21,11 +21,14 @@ public class DataManager {
 
   private RestService mRestService;
   private DbManager mDbManager;
+  private AppPreferencesManager mAppPreferencesManager;
 
   @Inject
-  public DataManager(RestService restService, DbManager dbManager) {
+  public DataManager(RestService restService, DbManager dbManager, AppPreferencesManager preferencesManager) {
     mDbManager = dbManager;
     mRestService = restService;
+    mAppPreferencesManager = preferencesManager;
+
   }
 
   public void translate(final String text, final String lang, final ReqCallback<Translation> callback){
@@ -82,6 +85,14 @@ public class DataManager {
       }
     });
 
+  }
+
+  public void saveLastLangs(String from, String to){
+    mAppPreferencesManager.saveLastLangs(from, to);
+  }
+
+  public String[] getLastlangs(){
+    return mAppPreferencesManager.getLastFromLang();
   }
 
   public interface ReqCallback<R> {

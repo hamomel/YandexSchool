@@ -27,21 +27,15 @@ public class MainActivity extends AppCompatActivity {
   private static String TAG = ConstantManager.TAG_PREFIX + "MainActivity: ";
   private FragmentManager mFragmentManager;
 
-  @BindView(R.id.toolbar)
-  Toolbar toolbar;
-
-
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_main);
     ButterKnife.bind(this);
-    setSupportActionBar(toolbar);
-    getSupportActionBar().setDisplayShowTitleEnabled(false);
-    getSupportActionBar().setDisplayUseLogoEnabled(true);
-    LayoutInflater inflater = ((LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE));
-    View view = inflater.inflate(R.layout.toolbar_main_view, toolbar);
-    //toolbar.addView(view);
+
+    //LayoutInflater inflater = ((LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE));
+    //View view = inflater.inflate(R.layout.toolbar_main_view, toolbar);
+    ////toolbar.addView(view);
 
     if (AppConfig.DEBUG) Log.d(TAG, "onCreate: " + Locale.getDefault().getDisplayLanguage());
 

@@ -24,6 +24,12 @@ public interface TranslationContract {
     void showNoNetworkMessage();
 
     boolean isNetworkAvailable();
+
+    void setLangs(List<String> langs);
+
+    void setLastLangs(String[] lastlangs);
+
+    boolean hasLangs();
   }
 
   public interface TranslationPresenter<V> extends IPresenter<V> {
@@ -31,7 +37,12 @@ public interface TranslationContract {
     /**
      * translate given text
      * @param text text to translate
+     * @param from
      */
-    void translate(String text);
+    void translate(String text, String from, String to);
+
+    List<String> getLangs();
+
+    void saveLastlangs(String langFrom, String langTo);
   }
 }
