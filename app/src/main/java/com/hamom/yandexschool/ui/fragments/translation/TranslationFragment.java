@@ -34,6 +34,7 @@ import com.hamom.yandexschool.utils.App;
 import com.hamom.yandexschool.utils.AppConfig;
 import com.hamom.yandexschool.utils.ConstantManager;
 import java.util.List;
+import java.util.Timer;
 import javax.inject.Inject;
 
 /**
@@ -61,6 +62,8 @@ public class TranslationFragment extends Fragment implements TranslationContract
   @BindView(R.id.swap_language_iv)
   ImageButton changeLanguageIv;
 
+  @Inject
+  TranslationContract.TranslationPresenter mPresenter;
 
   private String mLangFrom;
   private String mLangTo;
@@ -107,9 +110,9 @@ public class TranslationFragment extends Fragment implements TranslationContract
   }
   //endregion
 
-  @Inject
-  TranslationContract.TranslationPresenter mPresenter;
 
+
+  //region===================== LifeCycle ==========================
   @Override
   public void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
@@ -132,58 +135,6 @@ public class TranslationFragment extends Fragment implements TranslationContract
     return v;
   }
 
-  private void initToolbar() {
-    AppCompatActivity activity = ((AppCompatActivity) getActivity());
-    activity.setSupportActionBar(toolbar);
-    activity.getSupportActionBar().setDisplayShowTitleEnabled(false);
-
-  }
-
-  private void initToSpinner() {
-    ArrayAdapter<String> adapter = new ArrayAdapter<String>(getContext(),
-        android.R.layout.simple_spinner_item, mPresenter.getLangs());
-    spinnerTo.setAdapter(adapter);
-    spinnerTo.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-      @Override
-      public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-        mLangTo = mLangs.get(position);
-      }
-
-      @Override
-      public void onNothingSelected(AdapterView<?> parent) {
-
-      }
-    });
-  }
-
-  private void initFromSpinner() {
-    if (AppConfig.DEBUG) Log.d(TAG, "initFromSpinner: ");
-
-    ArrayAdapter<String> adapter = new ArrayAdapter<String>(getContext(),
-        android.R.layout.simple_spinner_item, mPresenter.getLangs()){
-      @NonNull
-      @Override
-      public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
-        View v = super.getView(position, convertView, parent);
-        ((TextView) v).setGravity(Gravity.END);
-        return v;
-      }
-    };
-    spinnerFrom.setAdapter(adapter);
-    spinnerFrom.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-      @Override
-      public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-        mLangFrom = mLangs.get(position);
-        translate();
-      }
-
-      @Override
-      public void onNothingSelected(AdapterView<?> parent) {
-
-      }
-    });
-  }
-
   @Override
   public void onDestroyView() {
     super.onDestroyView();
@@ -198,6 +149,8 @@ public class TranslationFragment extends Fragment implements TranslationContract
 
     mPresenter.dropView();
   }
+  //endregion
+
 
   private void translate() {
     if (!TextUtils.isEmpty(userInputEt.getText())){
@@ -264,4 +217,58 @@ public class TranslationFragment extends Fragment implements TranslationContract
   public boolean hasLangs() {
     return !(mLangs == null || !mLangs.isEmpty());
   }
+
+  //region===================== Toolbar ==========================
+  private void initToolbar() {
+    AppCompatActivity activity = ((AppCompatActivity) getActivity());
+    activity.setSupportActionBar(toolbar);
+    activity.getSupportActionBar().setDisplayShowTitleEnabled(false);
+  }
+
+  private void initToSpinner() {
+    ArrayAdapter<String> adapter = new ArrayAdapter<String>(getContext(),
+        android.R.layout.simple_spinner_item, mPresenter.getLangs());
+    spinnerTo.setAdapter(adapter);
+    spinnerTo.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+      @Override
+      public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+        mLangTo = mLangs.get(position);
+      }
+
+      @Override
+      public void onNothingSelected(AdapterView<?> parent) {
+
+      }
+    });
+  }
+
+  private void initFromSpinner() {
+    if (AppConfig.DEBUG) Log.d(TAG, "initFromSpinner: ");
+
+    ArrayAdapter<String> adapter = new ArrayAdapter<String>(getContext(),
+        android.R.layout.simple_spinner_item, mPresenter.getLangs()){
+      @NonNull
+      @Override
+      public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
+        View v = super.getView(position, convertView, parent);
+        ((TextView) v).setGravity(Gravity.END);
+        return v;
+      }
+    };
+    spinnerFrom.setAdapter(adapter);
+    spinnerFrom.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+      @Override
+      public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+        mLangFrom = mLangs.get(position);
+        translate();
+      }
+
+      @Override
+      public void onNothingSelected(AdapterView<?> parent) {
+
+      }
+    });
+  }
+  //endregion
+
 }
