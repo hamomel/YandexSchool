@@ -35,6 +35,7 @@ import com.hamom.yandexschool.utils.AppConfig;
 import com.hamom.yandexschool.utils.ConstantManager;
 import java.util.List;
 import java.util.Timer;
+import java.util.TimerTask;
 import javax.inject.Inject;
 
 /**
@@ -68,9 +69,7 @@ public class TranslationFragment extends Fragment implements TranslationContract
   private String mLangFrom;
   private String mLangTo;
   private List<String> mLangs;
-
-  private Handler mHandler;
-  private Runnable mTranslateRunnable;
+  private Timer mTimer;
 
   //region===================== Events ==========================
     @OnClick(R.id.clear_button_ib)
@@ -101,7 +100,6 @@ public class TranslationFragment extends Fragment implements TranslationContract
   void onTextChanged(final CharSequence text){
     if (AppConfig.DEBUG) Log.d(TAG, "onUserInputChanged: ");
 
-    mHandler.removeCallbacks(mTranslateRunnable);
     if (!TextUtils.isEmpty(text)){
       translate();
     } else {
@@ -118,7 +116,6 @@ public class TranslationFragment extends Fragment implements TranslationContract
     super.onCreate(savedInstanceState);
     setRetainInstance(true);
     if (AppConfig.DEBUG) Log.d(TAG, "onCreate: ");
-    createRunnable();
     App.getAppComponent().getTranslationComponent(new TranslationModule()).inject(this);
   }
 
@@ -152,21 +149,17 @@ public class TranslationFragment extends Fragment implements TranslationContract
   //endregion
 
 
-  private void translate() {
-    if (!TextUtils.isEmpty(userInputEt.getText())){
-      mHandler.postDelayed(mTranslateRunnable, ConstantManager.TRANSLATION_DELAY_MILLIS);
+  private void translate(){
+    if (mTimer != null) {
+      mTimer.cancel();
     }
-  }
-
-  private void createRunnable(){
-    mHandler = new Handler();
-    mTranslateRunnable = new Runnable() {
+    mTimer = new Timer();
+    mTimer.schedule(new TimerTask() {
       @Override
       public void run() {
         mPresenter.translate(userInputEt.getText().toString(), mLangFrom, mLangTo);
-        translate();
       }
-    };
+    }, ConstantManager.TRANSLATION_DELAY_MILLIS);
   }
 
   @Override
