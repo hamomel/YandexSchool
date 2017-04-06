@@ -98,17 +98,29 @@ public class TranslationFragment extends Fragment implements TranslationContract
 
   @OnTextChanged(R.id.user_input_et)
   void onTextChanged(final CharSequence text){
-    if (AppConfig.DEBUG) Log.d(TAG, "onUserInputChanged: ");
-
+    if (AppConfig.DEBUG) Log.d(TAG, "onUserInputChanged: " + text);
+    if (mTimer != null) {
+      mTimer.cancel();
+    }
     if (!TextUtils.isEmpty(text)){
-      translate();
+      mTimer = new Timer();
+      mTimer.schedule(new TimerTask() {
+
+        @Override
+        public void run() {
+          getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+              translate();
+            }
+          });
+        }
+      }, ConstantManager.TRANSLATION_DELAY_MILLIS);
     } else {
       translationTv.setText("");
     }
   }
   //endregion
-
-
 
   //region===================== LifeCycle ==========================
   @Override
@@ -148,18 +160,10 @@ public class TranslationFragment extends Fragment implements TranslationContract
   }
   //endregion
 
-
   private void translate(){
-    if (mTimer != null) {
-      mTimer.cancel();
+    if (!TextUtils.isEmpty(userInputEt.getText())){
+      mPresenter.translate(userInputEt.getText().toString(), mLangFrom, mLangTo);
     }
-    mTimer = new Timer();
-    mTimer.schedule(new TimerTask() {
-      @Override
-      public void run() {
-        mPresenter.translate(userInputEt.getText().toString(), mLangFrom, mLangTo);
-      }
-    }, ConstantManager.TRANSLATION_DELAY_MILLIS);
   }
 
   @Override
@@ -226,6 +230,7 @@ public class TranslationFragment extends Fragment implements TranslationContract
       @Override
       public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
         mLangTo = mLangs.get(position);
+        translate();
       }
 
       @Override
@@ -240,6 +245,7 @@ public class TranslationFragment extends Fragment implements TranslationContract
 
     ArrayAdapter<String> adapter = new ArrayAdapter<String>(getContext(),
         android.R.layout.simple_spinner_item, mPresenter.getLangs()){
+      // set gravity fot TextView in Spinner
       @NonNull
       @Override
       public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
