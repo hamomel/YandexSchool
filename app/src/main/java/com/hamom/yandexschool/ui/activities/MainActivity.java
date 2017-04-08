@@ -6,6 +6,7 @@ import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -56,20 +57,38 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+          Fragment fragment = getCurrentFragment();
           switch (item.getItemId()) {
             case R.id.navigation_translate:
+              if (AppConfig.DEBUG) Log.d(TAG, "onNavigationItemSelected: translate");
 
-              return true;
+              if (!(fragment instanceof TranslationFragment)){
+                fragment = new TranslationFragment();
+              }
+              break;
             case R.id.navigation_favorite:
-              return true;
+              break;
             case R.id.navigation_history:
-              return true;
+              if (AppConfig.DEBUG) Log.d(TAG, "onNavigationItemSelected: history");
+
+              if (!(fragment instanceof HistoryFragment)){
+                fragment = new HistoryFragment();
+              }
+              break;
           }
-          return false;
+          setFragment(fragment, false);
+          return true;
         }
       };
   //endregion
 
+  private void setFragment(Fragment fragment, boolean addToBackStack){
+    mFragmentManager.beginTransaction().replace(R.id.main_frame, fragment).commit();
+  }
+
+  private Fragment getCurrentFragment(){
+    return mFragmentManager.findFragmentById(R.id.main_frame);
+  }
   public Boolean isNetworkAvailable(){
     ConnectivityManager cm = (ConnectivityManager) getSystemService(
         Context.CONNECTIVITY_SERVICE);

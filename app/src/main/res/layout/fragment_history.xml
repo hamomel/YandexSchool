@@ -2,21 +2,16 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:padding="8dp"
     tools:context="com.hamom.yandexschool.ui.fragments.history.HistoryFragment"
     >
 
-  <Button
-      android:id="@+id/btn_history"
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-      android:layout_gravity="center"
-      android:text="Push"
-      />
-  <TextView
-      android:id="@+id/text_view_history"
-      android:layout_width="match_parent"
-      android:layout_height="match_parent"
-      android:text="@string/hello_blank_fragment"
-      />
+ <android.support.v7.widget.RecyclerView
+     android:id="@+id/history_recycler"
+     android:layout_width="match_parent"
+     android:layout_height="match_parent"
+     >
+
+ </android.support.v7.widget.RecyclerView>
 
 </FrameLayout>

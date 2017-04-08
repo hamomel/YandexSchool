@@ -9,6 +9,7 @@ import com.hamom.yandexschool.data.local.models.Translation;
 import com.hamom.yandexschool.utils.ConstantManager;
 import com.hamom.yandexschool.utils.errors.ApiError;
 import com.hamom.yandexschool.utils.AppConfig;
+import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import okhttp3.ResponseBody;
@@ -96,6 +97,11 @@ public class DataManager {
 
   public String[] getLastlangs(){
     return mAppPreferencesManager.getLastFromLang();
+  }
+
+  public void getAllHistory(ReqCallback<List<Translation>> callback){
+    List<Translation> history = mDbManager.getAllHistory();
+    callback.onSuccess(history);
   }
 
   public interface ReqCallback<R> {

@@ -4,6 +4,8 @@ import com.hamom.yandexschool.data.local.database.DbManager;
 import com.hamom.yandexschool.data.local.models.Translation;
 import com.hamom.yandexschool.data.network.RestService;
 import com.hamom.yandexschool.resourses.MockTranslateRes;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import okhttp3.mockwebserver.MockResponse;
@@ -127,4 +129,33 @@ public class DataManagerTest {
     assertEquals("взгляд", mTestRes.getWord());
   }
 
+  @Test
+  public void getAllHistory() throws Exception {
+    final List<Translation> history = new ArrayList<>();
+    history.add(new Translation("anyString", "anyString"));
+    final List<Translation> responce = new ArrayList<>();
+    final CountDownLatch lock = new CountDownLatch(1);
+
+    when(mDbManager.getAllHistory()).thenReturn(history);
+
+    mDataManager.getAllHistory(new DataManager.ReqCallback<List<Translation>>() {
+      @Override
+      public void onSuccess(List<Translation> res) {
+        responce.addAll(res);
+       lock.countDown();
+      }
+
+      @Override
+      public void onFailure(Throwable e) {
+        mThrowable = e;
+      }
+    });
+
+    lock.await(2000, TimeUnit.MILLISECONDS);
+
+    assertNotEquals(0, responce.size());
+    assertEquals(history.get(0), responce.get(0));
+    assertNull(mThrowable);
+
+  }
 }
