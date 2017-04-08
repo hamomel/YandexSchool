@@ -2,7 +2,6 @@ package com.hamom.yandexschool.ui.fragments.translation;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -60,6 +59,7 @@ public class TranslationFragment extends Fragment implements TranslationContract
   @BindView(R.id.spinner_to)
   Spinner spinnerTo;
 
+
   @BindView(R.id.swap_language_iv)
   ImageButton changeLanguageIv;
 
@@ -88,34 +88,21 @@ public class TranslationFragment extends Fragment implements TranslationContract
 
   @OnClick(R.id.swap_language_iv)
     void onSwapClick(){
-      String tmp = mLangFrom;
-      mLangFrom = mLangTo;
-      mLangTo = tmp;
-      spinnerFrom.setSelection(mLangs.indexOf(mLangFrom));
-      spinnerTo.setSelection(mLangs.indexOf(mLangTo));
-      translate();
+
+    String tmp = mLangFrom;
+    mLangFrom = mLangTo;
+    mLangTo = tmp;
+    spinnerFrom.setSelection(mLangs.indexOf(mLangFrom));
+    spinnerTo.setSelection(mLangs.indexOf(mLangTo));
+
     }
 
   @OnTextChanged(R.id.user_input_et)
   void onTextChanged(final CharSequence text){
     if (AppConfig.DEBUG) Log.d(TAG, "onUserInputChanged: " + text);
-    if (mTimer != null) {
-      mTimer.cancel();
-    }
-    if (!TextUtils.isEmpty(text)){
-      mTimer = new Timer();
-      mTimer.schedule(new TimerTask() {
 
-        @Override
-        public void run() {
-          getActivity().runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-              translate();
-            }
-          });
-        }
-      }, ConstantManager.TRANSLATION_DELAY_MILLIS);
+    if (!TextUtils.isEmpty(text)){
+      translate();
     } else {
       translationTv.setText("");
     }
@@ -147,7 +134,7 @@ public class TranslationFragment extends Fragment implements TranslationContract
   @Override
   public void onDestroyView() {
     super.onDestroyView();
-    mPresenter.saveLastlangs(mLangFrom, mLangTo);
+    mPresenter.saveLastLangs(mLangFrom, mLangTo);
 
   }
 
@@ -161,8 +148,23 @@ public class TranslationFragment extends Fragment implements TranslationContract
   //endregion
 
   private void translate(){
+    if (mTimer != null) {
+      mTimer.cancel();
+    }
     if (!TextUtils.isEmpty(userInputEt.getText())){
-      mPresenter.translate(userInputEt.getText().toString(), mLangFrom, mLangTo);
+      mTimer = new Timer();
+      mTimer.schedule(new TimerTask() {
+
+        @Override
+        public void run() {
+          getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+              mPresenter.translate(userInputEt.getText().toString(), mLangFrom, mLangTo);
+            }
+          });
+        }
+      }, ConstantManager.TRANSLATION_DELAY_MILLIS);
     }
   }
 

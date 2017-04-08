@@ -35,17 +35,17 @@ public class NetworkModule {
     return createClient();
   }
 
-
-  private Retrofit createRetrofit(OkHttpClient client){
-    return new Retrofit.Builder()
-        .baseUrl(AppConfig.BASE_URL)
+  private Retrofit createRetrofit(OkHttpClient client) {
+    return new Retrofit.Builder().baseUrl(AppConfig.BASE_URL)
         .addConverterFactory(GsonConverterFactory.create())
         .client(client)
         .build();
   }
+
   private OkHttpClient createClient() {
     return new OkHttpClient.Builder().addInterceptor(
-        new HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY))
+        new HttpLoggingInterceptor()
+            .setLevel(HttpLoggingInterceptor.Level.BODY))
         .connectTimeout(AppConfig.MAX_CONNECT_TIMEOUT, TimeUnit.MILLISECONDS)
         .readTimeout(AppConfig.MAX_READ_TIMEOUT, TimeUnit.MILLISECONDS)
         .writeTimeout(AppConfig.MAX_WRITE_TIMEOUT, TimeUnit.MILLISECONDS)

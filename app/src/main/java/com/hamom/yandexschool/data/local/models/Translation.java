@@ -65,7 +65,7 @@ public class Translation {
   }
 
   public void setTime(long time) {
-    time = time;
+    this.time = time;
   }
 
   public void setId(long id) {

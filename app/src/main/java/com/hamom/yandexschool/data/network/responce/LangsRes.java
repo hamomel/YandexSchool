@@ -26,4 +26,8 @@ public class LangsRes {
   public Map<String, String> getLangs() {
     return langs;
   }
+
+  public LangsRes(Map<String, String> langs) {
+    this.langs = langs;
+  }
 }

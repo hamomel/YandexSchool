@@ -2,7 +2,10 @@ package com.hamom.yandexschool.data.network;
 
 import com.hamom.yandexschool.data.network.responce.LangsRes;
 import com.hamom.yandexschool.data.network.responce.TranslateRes;
+import okhttp3.ResponseBody;
 import retrofit2.Call;
+import retrofit2.http.GET;
+import retrofit2.http.Header;
 import retrofit2.http.POST;
 import retrofit2.http.Query;
 

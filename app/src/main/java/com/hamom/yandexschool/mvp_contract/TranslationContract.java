@@ -7,7 +7,8 @@ import java.util.List;
  */
 
 public interface TranslationContract {
-  public interface TranslationView extends IView{
+
+  interface TranslationView extends IView{
 
     /**
      * shows given translation
@@ -21,6 +22,9 @@ public interface TranslationContract {
      */
     void showMessage(String message);
 
+    /**
+     * shows to user that internet unavailable
+     */
     void showNoNetworkMessage();
 
     boolean isNetworkAvailable();
@@ -32,7 +36,7 @@ public interface TranslationContract {
     boolean hasLangs();
   }
 
-  public interface TranslationPresenter<V> extends IPresenter<V> {
+  interface TranslationPresenter{
 
     /**
      * translate given text
@@ -41,8 +45,21 @@ public interface TranslationContract {
      */
     void translate(String text, String from, String to);
 
+    /**
+     * returns list of languages from API
+     * @return
+     */
     List<String> getLangs();
 
-    void saveLastlangs(String langFrom, String langTo);
+    /**
+     * save last used pair of languages
+     * @param langFrom
+     * @param langTo
+     */
+    void saveLastLangs(String langFrom, String langTo);
+
+    void takeView(TranslationView view);
+
+    void dropView();
   }
 }

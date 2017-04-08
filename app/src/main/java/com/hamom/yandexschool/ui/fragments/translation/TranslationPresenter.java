@@ -1,11 +1,13 @@
 package com.hamom.yandexschool.ui.fragments.translation;
 
 import android.support.annotation.Nullable;
+import android.support.annotation.VisibleForTesting;
 import android.util.Log;
 import com.hamom.yandexschool.data.managers.DataManager;
 import com.hamom.yandexschool.data.local.models.Translation;
 import com.hamom.yandexschool.data.network.responce.LangsRes;
 import com.hamom.yandexschool.di.scopes.TranslationScope;
+import com.hamom.yandexschool.mvp_contract.AbstractPresenter;
 import com.hamom.yandexschool.mvp_contract.TranslationContract;
 import com.hamom.yandexschool.utils.AppConfig;
 import com.hamom.yandexschool.utils.ConstantManager;
@@ -23,35 +25,29 @@ import java.util.Set;
  * Created by hamom on 25.03.17.
  */
 @TranslationScope
-public class TranslationPresenter implements
-    TranslationContract.TranslationPresenter<TranslationContract.TranslationView> {
+public class TranslationPresenter extends AbstractPresenter<TranslationContract.TranslationView>
+    implements TranslationContract.TranslationPresenter {
   private static String TAG = ConstantManager.TAG_PREFIX + "TransPres: ";
 
-  private TranslationContract.TranslationView mView;
-  private DataManager mDataManager;
-  private String mToLang;
   private Map<String, String> mLangs;
 
   public TranslationPresenter(DataManager dataManager) {
-    // TODO: 27.03.17 remove this
-    mToLang = "ru";
-
+    super(dataManager);
     mLangs = new HashMap<>();
-    mDataManager = dataManager;
     fillLangs();
   }
 
   public void takeView(TranslationContract.TranslationView view) {
-    mView = view;
-    if (!mView.hasLangs()){
-      if (!mLangs.isEmpty()){
+    super.takeView(view);
+    if (!mView.hasLangs()) {
+      if (!mLangs.isEmpty()) {
         setViewLangs();
       }
     }
   }
 
   public void dropView() {
-    mView = null;
+    super.dropView();
   }
 
   @Nullable
@@ -64,11 +60,6 @@ public class TranslationPresenter implements
     return mView != null;
   }
 
-  /**
-   * get translation for given word from local or network
-   * @param text text to translate
-   * @param from
-   */
   @Override
   public void translate(String text, String from, String to) {
     if (checkNetwork()) return;
@@ -90,42 +81,38 @@ public class TranslationPresenter implements
   }
 
   @Override
-  public void saveLastlangs(String langFrom, String langTo) {
+  public void saveLastLangs(String langFrom, String langTo) {
     mDataManager.saveLastLangs(langFrom, langTo);
   }
 
-  private void sortAlphabeticaly(List<String> list){
-    Collections.sort(list, new Comparator<String>()
-    {
+  private void sortAlphabeticaly(List<String> list) {
+    Collections.sort(list, new Comparator<String>() {
       @Override
-      public int compare(String text1, String text2)
-      {
+      public int compare(String text1, String text2) {
         return text1.compareToIgnoreCase(text2);
       }
     });
   }
 
-  private void fillLangs(){
+  private void fillLangs() {
     if (checkNetwork()) return;
     String sysLang = Locale.getDefault().getDisplayLanguage();
     String ui = sysLang.equals("русский") ? "ru" : "en";
     mDataManager.getLangs(ui, getLangsCallback());
   }
 
-
-
   private boolean checkNetwork() {
-    if (!NetworkStatusChecker.isNetworkAvailable()){
-      if (hasView()){
+    if (hasView()) {
+      if (!getView().isNetworkAvailable()) {
         getView().showNoNetworkMessage();
+        return true;
       }
-      return true;
     }
     return false;
   }
 
   private void setViewLangs() {
-    if (hasView()){
+    if (hasView()) {
       getView().setLangs(getLangs());
       getView().setLastLangs(mDataManager.getLastlangs());
     }
@@ -133,7 +120,6 @@ public class TranslationPresenter implements
 
   /**
    * make callback to receive map of languages
-   * @return
    */
   private DataManager.ReqCallback<LangsRes> getLangsCallback() {
     return new DataManager.ReqCallback<LangsRes>() {
@@ -150,25 +136,23 @@ public class TranslationPresenter implements
 
       @Override
       public void onFailure(Throwable e) {
-        if (hasView()){
+        if (hasView()) {
           getView().showMessage(e.getMessage());
         }
       }
     };
   }
 
-
   /**
    * make callback to receive translation and update view
-   * @return
    */
-  private DataManager.ReqCallback<Translation> getTranslateCallback(){
+  private DataManager.ReqCallback<Translation> getTranslateCallback() {
     return new DataManager.ReqCallback<Translation>() {
       @Override
       public void onSuccess(Translation translation) {
         if (AppConfig.DEBUG) Log.d(TAG, "onSuccess: ");
 
-        if (hasView()){
+        if (hasView()) {
           getView().updateTranslation(translation.getTranslations());
         }
       }
@@ -176,7 +160,7 @@ public class TranslationPresenter implements
       @Override
       public void onFailure(Throwable e) {
         if (AppConfig.DEBUG) Log.d(TAG, "onFailure: ");
-        if (hasView()){
+        if (hasView()) {
           getView().showMessage(e.getMessage());
         }
       }

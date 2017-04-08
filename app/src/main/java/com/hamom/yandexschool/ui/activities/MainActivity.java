@@ -17,6 +17,7 @@ import android.widget.FrameLayout;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import com.hamom.yandexschool.R;
+import com.hamom.yandexschool.ui.fragments.history.HistoryFragment;
 import com.hamom.yandexschool.ui.fragments.translation.TranslationFragment;
 import com.hamom.yandexschool.utils.App;
 import com.hamom.yandexschool.utils.AppConfig;

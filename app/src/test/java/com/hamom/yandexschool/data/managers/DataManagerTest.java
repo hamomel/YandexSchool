@@ -33,6 +33,8 @@ public class DataManagerTest {
 
   @Mock
   private DbManager mDbManager;
+  @Mock
+  private AppPreferencesManager mAppPreferencesManager;
 
   @Before
   public void setUp() throws Exception {
@@ -44,7 +46,7 @@ public class DataManagerTest {
         .build();
 
     RestService restService = retrofit.create(RestService.class);
-    mDataManager = new DataManager(restService, mDbManager);
+    mDataManager = new DataManager(restService, mDbManager, mAppPreferencesManager);
   }
 
   @After

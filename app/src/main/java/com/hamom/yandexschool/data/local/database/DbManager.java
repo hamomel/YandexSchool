@@ -107,7 +107,7 @@ public class DbManager {
     translation.setFavorite(favorite != 0);
     translation.setTranslations(getWords(longId));
 
-    if (AppConfig.DEBUG) Log.d(TAG, "checkAlreadyExist: " + id);
+    if (AppConfig.DEBUG) Log.d(TAG, "checkAlreadyExist: " + id + " " + translation.getTime());
 
     // update translation time
     updateTranslationTime(translation);

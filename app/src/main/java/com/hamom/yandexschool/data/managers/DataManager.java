@@ -1,14 +1,17 @@
 package com.hamom.yandexschool.data.managers;
 
+import android.util.Log;
 import com.hamom.yandexschool.data.local.database.DbManager;
 import com.hamom.yandexschool.data.network.RestService;
 import com.hamom.yandexschool.data.network.responce.LangsRes;
 import com.hamom.yandexschool.data.network.responce.TranslateRes;
 import com.hamom.yandexschool.data.local.models.Translation;
+import com.hamom.yandexschool.utils.ConstantManager;
 import com.hamom.yandexschool.utils.errors.ApiError;
 import com.hamom.yandexschool.utils.AppConfig;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -18,7 +21,7 @@ import retrofit2.Response;
  */
 @Singleton
 public class DataManager {
-
+  private static String TAG = ConstantManager.TAG_PREFIX + "DataManager: ";
   private RestService mRestService;
   private DbManager mDbManager;
   private AppPreferencesManager mAppPreferencesManager;
