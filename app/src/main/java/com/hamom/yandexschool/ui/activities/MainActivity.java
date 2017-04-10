@@ -9,38 +9,28 @@ import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.LayoutInflater;
+import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.FrameLayout;
-import butterknife.BindView;
 import butterknife.ButterKnife;
 import com.hamom.yandexschool.R;
 import com.hamom.yandexschool.ui.fragments.history.HistoryFragment;
 import com.hamom.yandexschool.ui.fragments.translation.TranslationFragment;
-import com.hamom.yandexschool.utils.App;
 import com.hamom.yandexschool.utils.AppConfig;
 import com.hamom.yandexschool.utils.ConstantManager;
-import java.util.Locale;
+import com.hamom.yandexschool.utils.MenuItemHolder;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
   private static String TAG = ConstantManager.TAG_PREFIX + "MainActivity: ";
   private FragmentManager mFragmentManager;
+  private List<MenuItemHolder> mMenuItems;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_main);
     ButterKnife.bind(this);
-
-    //LayoutInflater inflater = ((LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE));
-    //View view = inflater.inflate(R.layout.toolbar_main_view, toolbar);
-    ////toolbar.addView(view);
-
-    if (AppConfig.DEBUG) Log.d(TAG, "onCreate: " + Locale.getDefault().getDisplayLanguage());
-
 
     mFragmentManager = getSupportFragmentManager();
     if (savedInstanceState == null){
@@ -49,6 +39,28 @@ public class MainActivity extends AppCompatActivity {
 
     BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
     navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
+  }
+
+  public void setMenuItems(List<MenuItemHolder> items){
+    if (AppConfig.DEBUG) Log.d(TAG, "setMenuItems: ");
+
+    mMenuItems = items;
+  }
+
+  @Override
+  public boolean onPrepareOptionsMenu(Menu menu) {
+    invalidateOptionsMenu();
+    if (mMenuItems != null && !mMenuItems.isEmpty()){
+      for (MenuItemHolder menuItem : mMenuItems) {
+        MenuItem item = menu.add(menuItem.getItemTitle());
+        item.setIcon(menuItem.getItemResId());
+        item.setShowAsActionFlags(menuItem.getShowAsAction());
+        item.setOnMenuItemClickListener(menuItem.getListener());
+      }
+    } else {
+      menu.clear();
+    }
+    return super.onPrepareOptionsMenu(menu);
   }
 
   //region===================== bottom navigation ==========================

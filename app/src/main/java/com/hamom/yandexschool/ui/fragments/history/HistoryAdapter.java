@@ -26,6 +26,11 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHold
   private static String TAG = ConstantManager.TAG_PREFIX + "HistoryAdapt: ";
   private List<Translation> history = new ArrayList<>();
   private WeakReference<Context> mContextWeakReference;
+  private HistoryClickListener mListener;
+
+  public HistoryAdapter(HistoryClickListener listener) {
+    mListener = listener;
+  }
 
   public void init(List<Translation> history){
     this.history = history;
@@ -48,8 +53,8 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHold
   }
 
   @Override
-  public void onBindViewHolder(ViewHolder holder, int position) {
-    Translation translation = history.get(position);
+  public void onBindViewHolder(ViewHolder holder, final int position) {
+    final Translation translation = history.get(position);
     String translated = "";
     for (String s : translation.getTranslations()) {
       translated = translated.concat(s).concat("; ");
@@ -62,6 +67,19 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHold
     holder.translatedTv.setText(translated);
     holder.directionTv.setText(translation.getDirection());
     holder.favoriteIv.setImageDrawable(mContextWeakReference.get().getResources().getDrawable(iconId));
+    holder.itemView.setOnClickListener(new View.OnClickListener() {
+      @Override
+      public void onClick(View v) {
+        mListener.onClick(v, translation.getId());
+      }
+    });
+
+    holder.favoriteIv.setOnClickListener(new View.OnClickListener() {
+      @Override
+      public void onClick(View v) {
+        mListener.onClick(v, translation.getId());
+      }
+    });
   }
 
   @Override
@@ -80,10 +98,17 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHold
     TextView directionTv;
     @BindView(R.id.favorite_iv)
     ImageView favoriteIv;
+    View itemView;
+
 
     public ViewHolder(View itemView) {
       super(itemView);
+      this.itemView = itemView;
       ButterKnife.bind(this, itemView);
     }
+  }
+
+  interface HistoryClickListener {
+    void onClick(View v, long itemId);
   }
 }
