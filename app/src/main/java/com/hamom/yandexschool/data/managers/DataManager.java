@@ -1,6 +1,5 @@
 package com.hamom.yandexschool.data.managers;
 
-import android.util.Log;
 import com.hamom.yandexschool.data.local.database.DbManager;
 import com.hamom.yandexschool.data.network.RestService;
 import com.hamom.yandexschool.data.network.responce.LangsRes;
@@ -12,7 +11,6 @@ import com.hamom.yandexschool.utils.AppConfig;
 import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -102,6 +100,10 @@ public class DataManager {
   public void getAllHistory(ReqCallback<List<Translation>> callback){
     List<Translation> history = mDbManager.getAllHistory();
     callback.onSuccess(history);
+  }
+
+  public void updateTranslation(Translation translation) {
+    mDbManager.updateTranslation(translation);
   }
 
   public interface ReqCallback<R> {

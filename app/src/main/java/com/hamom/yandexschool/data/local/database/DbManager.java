@@ -35,13 +35,12 @@ public class DbManager {
    * @param translation
    */
   public void saveTranslation(@NotNull Translation translation){
-    if (AppConfig.DEBUG) Log.d(TAG, "saveTranslation: ");
     checkNotNull(translation);
 
-    if (checkAlreadyExist(translation) != null){
-      if (AppConfig.DEBUG) Log.d(TAG, "saveTranslation: exist");
-      return;
-    }
+    //if (checkAlreadyExist(translation) != null){
+    //  if (AppConfig.DEBUG) Log.d(TAG, "updateTranslation: exist");
+    //  return;
+    //}
 
     SQLiteDatabase db = mDbHelper.getWritableDatabase();
     int favorite = (translation.isFavorite())? 1 : 0;
@@ -110,7 +109,7 @@ public class DbManager {
     if (AppConfig.DEBUG) Log.d(TAG, "checkAlreadyExist: " + id + " " + translation.getTime());
 
     // update translation time
-    updateTranslationTime(translation);
+    updateTranslation(translation);
 
     c.close();
     readableDatabase.close();
@@ -118,17 +117,21 @@ public class DbManager {
     return translation;
   }
 
-  private void updateTranslationTime(Translation translation) {
+  public void updateTranslation(Translation translation){
+    SQLiteDatabase db = mDbHelper.getWritableDatabase();
+    int favorite = (translation.isFavorite())? 1 : 0;
+    ContentValues transValues = new ContentValues();
+    transValues.put(TransEntry.COLUMN_NAME_WORD, translation.getWord());
+    transValues.put(TransEntry.COLUMN_NAME_DIRECTION, translation.getDirection());
+    transValues.put(TransEntry.COLUMN_NAME_FAVORITE, favorite);
+    transValues.put(TransEntry.COLUMN_NAME_TIME, translation.getTime());
+
     String id = String.valueOf(translation.getId());
-    SQLiteDatabase writableDb = mDbHelper.getWritableDatabase();
-
-    ContentValues values = new ContentValues();
-    values.put(TransEntry.COLUMN_NAME_TIME, translation.getTime());
-
     String sel = TransEntry.COLUMN_NAME_ID + " LIKE ?";
     String[] args = {id};
-    writableDb.update(TransEntry.TABLE_NAME, values, sel, args);
-    writableDb.close();
+
+    db.update(TransEntry.TABLE_NAME, transValues, sel, args);
+    db.close();
   }
 
   private List<String> getWords(long id){

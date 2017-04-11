@@ -18,5 +18,7 @@ public interface HistoryContract {
   interface HistoryPresenter{
     void takeView(HistoryView view);
     void dropView();
+
+    void clickFavorite(Translation translation);
   }
 }

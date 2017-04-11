@@ -10,6 +10,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
+import butterknife.OnLongClick;
 import com.hamom.yandexschool.R;
 import com.hamom.yandexschool.data.local.models.Translation;
 import com.hamom.yandexschool.utils.AppConfig;
@@ -49,7 +51,7 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHold
   public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
     LayoutInflater inflater = LayoutInflater.from(parent.getContext());
     View v = inflater.inflate(R.layout.item_history, parent, false);
-    return new ViewHolder(v);
+    return new ViewHolder(v, mListener);
   }
 
   @Override
@@ -67,25 +69,10 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHold
     holder.translatedTv.setText(translated);
     holder.directionTv.setText(translation.getDirection());
     holder.favoriteIv.setImageDrawable(mContextWeakReference.get().getResources().getDrawable(iconId));
-    holder.itemView.setOnClickListener(new View.OnClickListener() {
-      @Override
-      public void onClick(View v) {
-        mListener.onClick(v, translation.getId());
-      }
-    });
-
-    holder.favoriteIv.setOnClickListener(new View.OnClickListener() {
-      @Override
-      public void onClick(View v) {
-        mListener.onClick(v, translation.getId());
-      }
-    });
   }
 
   @Override
   public int getItemCount() {
-    if (AppConfig.DEBUG) Log.d(TAG, "getItemCount: " + history.size());
-
     return history.size();
   }
 
@@ -98,17 +85,36 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHold
     TextView directionTv;
     @BindView(R.id.favorite_iv)
     ImageView favoriteIv;
-    View itemView;
 
+    HistoryClickListener mListener;
 
-    public ViewHolder(View itemView) {
+    @OnClick(R.id.favorite_iv)
+    void onFavoriteClick(View v){
+      history.get(getAdapterPosition()).changeFavorite();
+      mListener.onClick(v, history.get(getAdapterPosition()));
+      notifyDataSetChanged();
+    }
+
+    @OnClick(R.id.history_item)
+    void onItemClick(View v){
+      mListener.onClick(v, history.get(getAdapterPosition()));
+    }
+
+    @OnLongClick(R.id.history_item)
+    boolean onItemLongClick(View v){
+      mListener.onLongClick(v, history.get(getAdapterPosition()));
+      return true;
+    }
+
+    public ViewHolder(View itemView, HistoryClickListener listener) {
       super(itemView);
-      this.itemView = itemView;
+      mListener = listener;
       ButterKnife.bind(this, itemView);
     }
   }
 
   interface HistoryClickListener {
-    void onClick(View v, long itemId);
+    void onClick(View v, Translation translation);
+    void onLongClick(View v, Translation translation);
   }
 }

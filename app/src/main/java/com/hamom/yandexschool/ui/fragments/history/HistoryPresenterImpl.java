@@ -30,6 +30,11 @@ public class HistoryPresenterImpl extends AbstractPresenter<HistoryContract.Hist
     getHistory();
   }
 
+  @Override
+  public void clickFavorite(Translation translation) {
+    mDataManager.updateTranslation(translation);
+  }
+
   private void getHistory(){
     mDataManager.getAllHistory(getHistoryCallback());
   }

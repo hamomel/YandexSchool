@@ -114,25 +114,30 @@ public class HistoryFragment extends Fragment implements HistoryContract.History
   private HistoryAdapter.HistoryClickListener getOnClickListener() {
     return new HistoryAdapter.HistoryClickListener() {
       @Override
-      public void onClick(View v, long itemId) {
+      public void onClick(View v, Translation translation) {
         switch (v.getId()){
           case R.id.history_item:
-            addSelectedItem(itemId);
+            addSelectedItem(translation);
             break;
           case R.id.favorite_iv:
-            setFavorite(itemId);
+            clickFavorite(translation);
             break;
         }
+      }
+
+      @Override
+      public void onLongClick(View v, Translation translation) {
+        Toast.makeText(getContext(), "LongClick " + translation.getId(), Toast.LENGTH_SHORT).show();
       }
     };
   }
 
-  private void setFavorite(long itemId) {
-    Toast.makeText(getContext(), "Favorite " + itemId, Toast.LENGTH_SHORT).show();
+  private void clickFavorite(Translation translation) {
+    mPresenter.clickFavorite(translation);
   }
 
-  private void addSelectedItem(long itemId) {
-    Toast.makeText(getContext(), "Selected " + itemId, Toast.LENGTH_SHORT).show();
+  private void addSelectedItem(Translation translation) {
+    Toast.makeText(getContext(), "Selected " + translation.getId(), Toast.LENGTH_SHORT).show();
   }
 
   @Override
