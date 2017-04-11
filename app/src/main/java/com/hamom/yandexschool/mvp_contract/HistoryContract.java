@@ -20,5 +20,7 @@ public interface HistoryContract {
     void dropView();
 
     void clickFavorite(Translation translation);
+
+    void cleanHistory();
   }
 }

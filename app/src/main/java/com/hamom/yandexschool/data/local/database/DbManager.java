@@ -37,11 +37,6 @@ public class DbManager {
   public void saveTranslation(@NotNull Translation translation){
     checkNotNull(translation);
 
-    //if (checkAlreadyExist(translation) != null){
-    //  if (AppConfig.DEBUG) Log.d(TAG, "updateTranslation: exist");
-    //  return;
-    //}
-
     SQLiteDatabase db = mDbHelper.getWritableDatabase();
     int favorite = (translation.isFavorite())? 1 : 0;
     ContentValues transValues = new ContentValues();
@@ -190,6 +185,13 @@ public class DbManager {
     c.close();
     readableDb.close();
     return result;
+  }
+
+  public void deleteAllTranslations(){
+    SQLiteDatabase writableDb = mDbHelper.getWritableDatabase();
+    writableDb.delete(TransEntry.TABLE_NAME, null, null);
+    writableDb.delete(WordEntry.TABLE_NAME, null, null);
+    writableDb.close();
   }
 
 }

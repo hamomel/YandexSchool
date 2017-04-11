@@ -35,6 +35,12 @@ public class HistoryPresenterImpl extends AbstractPresenter<HistoryContract.Hist
     mDataManager.updateTranslation(translation);
   }
 
+  @Override
+  public void cleanHistory() {
+    mDataManager.deleteAllHistory();
+    getHistory();
+  }
+
   private void getHistory(){
     mDataManager.getAllHistory(getHistoryCallback());
   }

@@ -106,6 +106,10 @@ public class DataManager {
     mDbManager.updateTranslation(translation);
   }
 
+  public void deleteAllHistory() {
+    mDbManager.deleteAllTranslations();
+  }
+
   public interface ReqCallback<R> {
     void onSuccess(R res);
     void onFailure(Throwable e);

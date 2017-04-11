@@ -101,7 +101,7 @@ public class HistoryFragment extends Fragment implements HistoryContract.History
   //endregion
 
   private void clearHistory() {
-    Toast.makeText(getContext(), "ClearHistory", Toast.LENGTH_LONG).show();
+    mPresenter.cleanHistory();
   }
 
   private void initRecycler() {
