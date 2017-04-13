@@ -13,14 +13,18 @@ public interface HistoryContract {
   interface HistoryView extends IView{
 
     void initView(List<Translation> history);
+
+    void setTranslationFragment(Translation translation);
   }
 
   interface HistoryPresenter{
     void takeView(HistoryView view);
     void dropView();
 
+    void cleanHistory();
+
     void clickFavorite(Translation translation);
 
-    void cleanHistory();
+    void clickItem(Translation translation);
   }
 }

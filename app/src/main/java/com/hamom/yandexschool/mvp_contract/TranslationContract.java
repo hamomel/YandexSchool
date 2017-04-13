@@ -1,5 +1,6 @@
 package com.hamom.yandexschool.mvp_contract;
 
+import com.hamom.yandexschool.data.local.models.Translation;
 import java.util.List;
 
 /**
@@ -8,7 +9,9 @@ import java.util.List;
 
 public interface TranslationContract {
 
-  interface TranslationView extends IView{
+  interface View extends IView{
+
+    void setTranslation(Translation translation);
 
     /**
      * shows given translation
@@ -29,14 +32,14 @@ public interface TranslationContract {
 
     boolean isNetworkAvailable();
 
-    void setLangs(List<String> langs);
+    void initView(List<String> langs);
 
     void setLastLangs(String[] lastlangs);
 
     boolean hasLangs();
   }
 
-  interface TranslationPresenter{
+  interface Presenter {
 
     /**
      * translate given text
@@ -49,7 +52,7 @@ public interface TranslationContract {
      * returns list of languages from API
      * @return
      */
-    List<String> getLangs();
+    List<String> getLangNames();
 
     /**
      * save last used pair of languages
@@ -58,8 +61,16 @@ public interface TranslationContract {
      */
     void saveLastLangs(String langFrom, String langTo);
 
-    void takeView(TranslationView view);
+    void takeView(View view);
 
     void dropView();
+
+    /**
+     * decode given direction and sets decoded to view
+     * @param direction
+     */
+    void decodeLangsAndSet(String direction);
+
+    void fetchLastLangs();
   }
 }

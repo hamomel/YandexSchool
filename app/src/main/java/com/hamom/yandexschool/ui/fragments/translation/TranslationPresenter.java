@@ -1,7 +1,6 @@
 package com.hamom.yandexschool.ui.fragments.translation;
 
 import android.support.annotation.Nullable;
-import android.support.annotation.VisibleForTesting;
 import android.util.Log;
 import com.hamom.yandexschool.data.managers.DataManager;
 import com.hamom.yandexschool.data.local.models.Translation;
@@ -11,7 +10,6 @@ import com.hamom.yandexschool.mvp_contract.AbstractPresenter;
 import com.hamom.yandexschool.mvp_contract.TranslationContract;
 import com.hamom.yandexschool.utils.AppConfig;
 import com.hamom.yandexschool.utils.ConstantManager;
-import com.hamom.yandexschool.utils.NetworkStatusChecker;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -25,22 +23,23 @@ import java.util.Set;
  * Created by hamom on 25.03.17.
  */
 @TranslationScope
-public class TranslationPresenter extends AbstractPresenter<TranslationContract.TranslationView>
-    implements TranslationContract.TranslationPresenter {
+public class TranslationPresenter extends AbstractPresenter<TranslationContract.View>
+    implements TranslationContract.Presenter {
   private static String TAG = ConstantManager.TAG_PREFIX + "TransPres: ";
 
-  private Map<String, String> mLangs;
+  private Map<String, String> mLangsByName;
+  private Map<String, String> mLangsByCode;
 
   public TranslationPresenter(DataManager dataManager) {
     super(dataManager);
-    mLangs = new HashMap<>();
+    mLangsByName = new HashMap<>();
     fillLangs();
   }
 
-  public void takeView(TranslationContract.TranslationView view) {
+  public void takeView(TranslationContract.View view) {
     super.takeView(view);
     if (!mView.hasLangs()) {
-      if (!mLangs.isEmpty()) {
+      if (!mLangsByName.isEmpty()) {
         setViewLangs();
       }
     }
@@ -50,9 +49,27 @@ public class TranslationPresenter extends AbstractPresenter<TranslationContract.
     super.dropView();
   }
 
+  @Override
+  public void decodeLangsAndSet(String direction) {
+    String[] codes = direction.split("-");
+    String[] decoded = new String[2];
+    decoded[0] = mLangsByCode.get(codes[0]);
+    decoded[1] = mLangsByCode.get(codes[1]);
+    if (hasView()){
+      getView().setLastLangs(decoded);
+    }
+  }
+
+  @Override
+  public void fetchLastLangs() {
+    if (hasView()){
+      getView().setLastLangs(mDataManager.getLastlangs());
+    }
+  }
+
   @Nullable
   @Override
-  public TranslationContract.TranslationView getView() {
+  public TranslationContract.View getView() {
     return mView;
   }
 
@@ -64,17 +81,18 @@ public class TranslationPresenter extends AbstractPresenter<TranslationContract.
   public void translate(String text, String from, String to) {
     if (checkNetwork()) return;
 
-    String direction = mLangs.get(from) + "-" + mLangs.get(to);
+    String direction = mLangsByName.get(from) + "-" + mLangsByName.get(to);
     if (AppConfig.DEBUG) Log.d(TAG, "translate: " + direction + " " + text);
 
     mDataManager.translate(text.trim(), direction, getTranslateCallback());
   }
 
-  @Override
-  public List<String> getLangs() {
+  public List<String> getLangNames() {
+    if (AppConfig.DEBUG) Log.d(TAG, "getLangNames: ");
+
     List<String> list = new ArrayList<>();
-    if (mLangs != null) {
-      list.addAll(mLangs.keySet());
+    if (mLangsByName != null) {
+      list.addAll(mLangsByName.keySet());
     }
     sortAlphabeticaly(list);
     return list;
@@ -113,8 +131,7 @@ public class TranslationPresenter extends AbstractPresenter<TranslationContract.
 
   private void setViewLangs() {
     if (hasView()) {
-      getView().setLangs(getLangs());
-      getView().setLastLangs(mDataManager.getLastlangs());
+      getView().initView(getLangNames());
     }
   }
 
@@ -128,9 +145,10 @@ public class TranslationPresenter extends AbstractPresenter<TranslationContract.
         if (AppConfig.DEBUG) Log.d(TAG, "onSuccess: " + res.getLangs());
         Set<Map.Entry<String, String>> set = res.getLangs().entrySet();
         for (Map.Entry<String, String> entry : set) {
-          mLangs.put(entry.getValue(), entry.getKey());
+          mLangsByName.put(entry.getValue(), entry.getKey());
         }
 
+        mLangsByCode = res.getLangs();
         setViewLangs();
       }
 

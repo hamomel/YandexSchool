@@ -10,7 +10,6 @@ import java.util.Map;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.Assert;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.invocation.InvocationOnMock;
@@ -36,9 +35,9 @@ public class TranslationPresenterTest {
   DataManager mDataManager;
 
   @Mock
-  TranslationContract.TranslationView mView;
+  TranslationContract.View mView;
 
-  private TranslationContract.TranslationPresenter mPresenter;
+  private TranslationContract.Presenter mPresenter;
   private Map<String, String> langs = new HashMap<>();
   @Before
   public void setUp() throws Exception {
@@ -84,7 +83,7 @@ public class TranslationPresenterTest {
     String russian = "Russian";
     List<String> list = new ArrayList<>();
     list.add(russian);
-    assertEquals(russian, mPresenter.getLangs().get(0));
+    assertEquals(russian, mPresenter.getLangNames().get(0));
   }
 
   @Test

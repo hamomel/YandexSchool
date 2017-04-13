@@ -2,6 +2,7 @@ package com.hamom.yandexschool.ui.fragments.history;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -18,6 +19,7 @@ import com.hamom.yandexschool.data.local.models.Translation;
 import com.hamom.yandexschool.di.modules.HistoryModule;
 import com.hamom.yandexschool.mvp_contract.HistoryContract;
 import com.hamom.yandexschool.ui.activities.MainActivity;
+import com.hamom.yandexschool.ui.fragments.translation.TranslationFragment;
 import com.hamom.yandexschool.utils.App;
 import com.hamom.yandexschool.utils.AppConfig;
 import com.hamom.yandexschool.utils.ConstantManager;
@@ -117,7 +119,7 @@ public class HistoryFragment extends Fragment implements HistoryContract.History
       public void onClick(View v, Translation translation) {
         switch (v.getId()){
           case R.id.history_item:
-            addSelectedItem(translation);
+            clickItem(translation);
             break;
           case R.id.favorite_iv:
             clickFavorite(translation);
@@ -136,13 +138,14 @@ public class HistoryFragment extends Fragment implements HistoryContract.History
     mPresenter.clickFavorite(translation);
   }
 
-  private void addSelectedItem(Translation translation) {
-    Toast.makeText(getContext(), "Selected " + translation.getId(), Toast.LENGTH_SHORT).show();
+  private void clickItem(Translation translation) {
+    mPresenter.clickItem(translation);
   }
 
   @Override
   public boolean onBackPressed() {
-    return false;
+    ((MainActivity) getActivity()).selectTranslationNavigation();
+    return true;
   }
 
   @Override
@@ -150,5 +153,13 @@ public class HistoryFragment extends Fragment implements HistoryContract.History
     if (AppConfig.DEBUG) Log.d(TAG, "initView: " + history);
 
     mAdapter.init(history);
+  }
+
+  @Override
+  public void setTranslationFragment(Translation translation) {
+    MainActivity activity = ((MainActivity) getActivity());
+    TranslationFragment fragment = TranslationFragment.newInstance(translation);
+    activity.selectTranslationNavigation();
+    activity.setFragment(fragment, false);
   }
 }

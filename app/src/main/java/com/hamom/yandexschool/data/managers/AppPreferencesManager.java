@@ -29,7 +29,7 @@ public class AppPreferencesManager {
     editor.apply();
   }
 
-  public String[] getLastFromLang(){
+  public String[] getLastLangs(){
     String[] langs = new String[2];
     langs[0] = mSharedPreferences.getString(LAST_FROM_LANG_KEY, "");
     langs[1] = mSharedPreferences.getString(LAST_TO_LANG_KEY, "");

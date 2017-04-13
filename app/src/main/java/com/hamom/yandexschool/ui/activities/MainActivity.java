@@ -12,8 +12,10 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import butterknife.BindView;
 import butterknife.ButterKnife;
 import com.hamom.yandexschool.R;
+import com.hamom.yandexschool.mvp_contract.IView;
 import com.hamom.yandexschool.ui.fragments.history.HistoryFragment;
 import com.hamom.yandexschool.ui.fragments.translation.TranslationFragment;
 import com.hamom.yandexschool.utils.AppConfig;
@@ -25,6 +27,9 @@ public class MainActivity extends AppCompatActivity {
   private static String TAG = ConstantManager.TAG_PREFIX + "MainActivity: ";
   private FragmentManager mFragmentManager;
   private List<MenuItemHolder> mMenuItems;
+
+  @BindView(R.id.navigation)
+  BottomNavigationView navigation;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -63,6 +68,13 @@ public class MainActivity extends AppCompatActivity {
     return super.onPrepareOptionsMenu(menu);
   }
 
+  @Override
+  public void onBackPressed() {
+    if (!((IView) getCurrentFragment()).onBackPressed()){
+      super.onBackPressed();
+    }
+  }
+
   //region===================== bottom navigation ==========================
   private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener =
       new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -72,30 +84,31 @@ public class MainActivity extends AppCompatActivity {
           Fragment fragment = getCurrentFragment();
           switch (item.getItemId()) {
             case R.id.navigation_translate:
-              if (AppConfig.DEBUG) Log.d(TAG, "onNavigationItemSelected: translate");
 
-              if (!(fragment instanceof TranslationFragment)){
                 fragment = new TranslationFragment();
-              }
               break;
             case R.id.navigation_favorite:
               break;
             case R.id.navigation_history:
-              if (AppConfig.DEBUG) Log.d(TAG, "onNavigationItemSelected: history");
 
-              if (!(fragment instanceof HistoryFragment)){
                 fragment = new HistoryFragment();
-              }
               break;
           }
-          setFragment(fragment, false);
-          return true;
+          if (getCurrentFragment().getClass() != fragment.getClass()){
+            setFragment(fragment, false);
+            return true;
+          }
+          return false;
         }
       };
   //endregion
 
-  private void setFragment(Fragment fragment, boolean addToBackStack){
+  public void setFragment(Fragment fragment, boolean addToBackStack){
     mFragmentManager.beginTransaction().replace(R.id.main_frame, fragment).commit();
+  }
+
+  public void selectTranslationNavigation(){
+    navigation.setSelectedItemId(R.id.navigation_translate);
   }
 
   private Fragment getCurrentFragment(){

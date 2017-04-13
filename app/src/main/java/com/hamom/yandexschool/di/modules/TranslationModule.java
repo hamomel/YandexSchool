@@ -14,7 +14,7 @@ import dagger.Provides;
 public class TranslationModule {
   @Provides
   @TranslationScope
-  TranslationContract.TranslationPresenter provideTranslationPresenter(DataManager dataManager) {
+  TranslationContract.Presenter provideTranslationPresenter(DataManager dataManager) {
     return new TranslationPresenter(dataManager);
   }
 }

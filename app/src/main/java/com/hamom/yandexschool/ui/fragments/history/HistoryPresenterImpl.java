@@ -36,6 +36,11 @@ public class HistoryPresenterImpl extends AbstractPresenter<HistoryContract.Hist
   }
 
   @Override
+  public void clickItem(Translation translation) {
+    mView.setTranslationFragment(translation);
+  }
+
+  @Override
   public void cleanHistory() {
     mDataManager.deleteAllHistory();
     getHistory();

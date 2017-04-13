@@ -1,12 +1,14 @@
 package com.hamom.yandexschool.data.local.models;
 
+import android.os.Parcel;
+import android.os.Parcelable;
 import java.util.List;
 
 /**
  * Created by hamom on 28.03.17.
  */
 
-public class Translation {
+public class Translation implements Parcelable{
 
   private long id;
   private String word;
@@ -87,4 +89,43 @@ public class Translation {
   public void setFavorite(boolean favorite) {
     this.favorite = favorite;
   }
+
+  //region===================== Parcelable ==========================
+  @Override
+  public int describeContents() {
+    return 0;
+  }
+
+  @Override
+  public void writeToParcel(Parcel dest, int flags) {
+    dest.writeLong(id);
+    dest.writeString(word);
+    dest.writeStringList(translations);
+    dest.writeString(direction);
+    dest.writeByte((byte) (favorite ? 1 : 0));
+    dest.writeLong(time);
+  }
+
+  protected Translation(Parcel in) {
+    id = in.readLong();
+    word = in.readString();
+    translations = in.createStringArrayList();
+    direction = in.readString();
+    favorite = in.readByte() != 0;
+    time = in.readLong();
+  }
+
+  public static final Creator<Translation> CREATOR = new Creator<Translation>() {
+    @Override
+    public Translation createFromParcel(Parcel in) {
+      return new Translation(in);
+    }
+
+    @Override
+    public Translation[] newArray(int size) {
+      return new Translation[size];
+    }
+  };
+  //endregion
+
 }

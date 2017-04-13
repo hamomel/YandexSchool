@@ -1,5 +1,6 @@
 package com.hamom.yandexschool.data.managers;
 
+import android.util.Log;
 import com.hamom.yandexschool.data.local.database.DbManager;
 import com.hamom.yandexschool.data.network.RestService;
 import com.hamom.yandexschool.data.network.responce.LangsRes;
@@ -90,11 +91,15 @@ public class DataManager {
   }
 
   public void saveLastLangs(String from, String to){
+    if (AppConfig.DEBUG) Log.d(TAG, "saveLastLangs: " + from + " " + to);
+
     mAppPreferencesManager.saveLastLangs(from, to);
   }
 
   public String[] getLastlangs(){
-    return mAppPreferencesManager.getLastFromLang();
+    if (AppConfig.DEBUG) Log.d(TAG, "getLastlangs: " + mAppPreferencesManager.getLastLangs()[0]);
+
+    return mAppPreferencesManager.getLastLangs();
   }
 
   public void getAllHistory(ReqCallback<List<Translation>> callback){

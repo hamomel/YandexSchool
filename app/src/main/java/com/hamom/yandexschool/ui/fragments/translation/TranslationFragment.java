@@ -11,7 +11,6 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
-import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
@@ -26,6 +25,7 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.OnTextChanged;
 import com.hamom.yandexschool.R;
+import com.hamom.yandexschool.data.local.models.Translation;
 import com.hamom.yandexschool.di.modules.TranslationModule;
 import com.hamom.yandexschool.mvp_contract.TranslationContract;
 import com.hamom.yandexschool.ui.activities.MainActivity;
@@ -41,8 +41,10 @@ import javax.inject.Inject;
  * Created by hamom on 25.03.17.
  */
 
-public class TranslationFragment extends Fragment implements TranslationContract.TranslationView {
+public class TranslationFragment extends Fragment implements TranslationContract.View {
   private static String TAG = ConstantManager.TAG_PREFIX + "TransFrag: ";
+
+  private static final String TRANSLATION_ARG_KEY = "TRANSLATION_ARG_KEY";
 
   @BindView(R.id.translation_tv)
   TextView translationTv;
@@ -64,7 +66,7 @@ public class TranslationFragment extends Fragment implements TranslationContract
   ImageButton changeLanguageIv;
 
   @Inject
-  TranslationContract.TranslationPresenter mPresenter;
+  TranslationContract.Presenter mPresenter;
 
   private String mLangFrom;
   private String mLangTo;
@@ -109,6 +111,14 @@ public class TranslationFragment extends Fragment implements TranslationContract
   }
   //endregion
 
+  public static TranslationFragment newInstance(Translation translation) {
+    TranslationFragment fragment = new TranslationFragment();
+    Bundle bundle = new Bundle();
+    bundle.putParcelable(TRANSLATION_ARG_KEY, translation);
+    fragment.setArguments(bundle);
+    return fragment;
+  }
+
   //region===================== LifeCycle ==========================
   @Override
   public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -121,10 +131,10 @@ public class TranslationFragment extends Fragment implements TranslationContract
   @SuppressWarnings("unchecked")
   @Nullable
   @Override
-  public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
+  public android.view.View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
       @Nullable Bundle savedInstanceState) {
     Log.d(TAG, "onCreateView: ");
-    View v = inflater.inflate(R.layout.fragment_translation, container, false);
+    android.view.View v = inflater.inflate(R.layout.fragment_translation, container, false);
     ButterKnife.bind(this, v);
     mPresenter.takeView(this);
     initToolbar();
@@ -174,6 +184,18 @@ public class TranslationFragment extends Fragment implements TranslationContract
   }
 
   @Override
+  public void setTranslation(Translation translation) {
+    userInputEt.setText(translation.getWord());
+
+    List<String> translations = translation.getTranslations();
+    StringBuilder sb = new StringBuilder();
+    for (String s : translations) {
+      sb.append(s).append("\n");
+    }
+    translationTv.setText(sb.toString());
+  }
+
+  @Override
   public void updateTranslation(List<String> text) {
     StringBuilder sb = new StringBuilder();
     for (String s : text) {
@@ -198,16 +220,25 @@ public class TranslationFragment extends Fragment implements TranslationContract
   }
 
   @Override
-  public void setLangs(List<String> langs) {
-    if (AppConfig.DEBUG) Log.d(TAG, "setLangs: " + langs);
-
+  public void initView(List<String> langs) {
     mLangs = langs;
-    initFromSpinner();
-    initToSpinner();
+    initFromSpinner(langs);
+    initToSpinner(langs);
+    if (getArguments() != null && getArguments().getParcelable(TRANSLATION_ARG_KEY) != null){
+      Translation translation = getArguments().getParcelable(TRANSLATION_ARG_KEY);
+      setTranslation(translation);
+      mPresenter.decodeLangsAndSet(translation.getDirection());
+    } else {
+      if (AppConfig.DEBUG) Log.d(TAG, "initView: ");
+
+      mPresenter.fetchLastLangs();
+    }
   }
 
   @Override
   public void setLastLangs(String[] lastlangs) {
+    if (AppConfig.DEBUG) Log.d(TAG, "setLastLangs: " + lastlangs[0] + " " + lastlangs[1]);
+
     if (!lastlangs[0].isEmpty()) spinnerFrom.setSelection(mLangs.indexOf(lastlangs[0]));
     if (!lastlangs[1].isEmpty()) spinnerTo.setSelection(mLangs.indexOf(lastlangs[1]));
   }
@@ -224,13 +255,13 @@ public class TranslationFragment extends Fragment implements TranslationContract
     activity.getSupportActionBar().setDisplayShowTitleEnabled(false);
   }
 
-  private void initToSpinner() {
+  private void initToSpinner(List<String> langs) {
     ArrayAdapter<String> adapter = new ArrayAdapter<String>(getContext(),
-        android.R.layout.simple_spinner_item, mPresenter.getLangs());
+        android.R.layout.simple_spinner_item, langs);
     spinnerTo.setAdapter(adapter);
     spinnerTo.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
       @Override
-      public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+      public void onItemSelected(AdapterView<?> parent, android.view.View view, int position, long id) {
         mLangTo = mLangs.get(position);
         translate();
       }
@@ -242,16 +273,16 @@ public class TranslationFragment extends Fragment implements TranslationContract
     });
   }
 
-  private void initFromSpinner() {
+  private void initFromSpinner(List<String> langs) {
     if (AppConfig.DEBUG) Log.d(TAG, "initFromSpinner: ");
 
     ArrayAdapter<String> adapter = new ArrayAdapter<String>(getContext(),
-        android.R.layout.simple_spinner_item, mPresenter.getLangs()){
+        android.R.layout.simple_spinner_item, langs){
       // set gravity fot TextView in Spinner
       @NonNull
       @Override
-      public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
-        View v = super.getView(position, convertView, parent);
+      public android.view.View getView(int position, @Nullable android.view.View convertView, @NonNull ViewGroup parent) {
+        android.view.View v = super.getView(position, convertView, parent);
         ((TextView) v).setGravity(Gravity.END);
         return v;
       }
@@ -259,7 +290,7 @@ public class TranslationFragment extends Fragment implements TranslationContract
     spinnerFrom.setAdapter(adapter);
     spinnerFrom.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
       @Override
-      public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+      public void onItemSelected(AdapterView<?> parent, android.view.View view, int position, long id) {
         mLangFrom = mLangs.get(position);
         translate();
       }
@@ -270,6 +301,8 @@ public class TranslationFragment extends Fragment implements TranslationContract
       }
     });
   }
+
+
   //endregion
 
 }
