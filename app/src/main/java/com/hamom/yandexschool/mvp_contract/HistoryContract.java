@@ -2,6 +2,7 @@ package com.hamom.yandexschool.mvp_contract;
 
 import com.hamom.yandexschool.data.local.models.Translation;
 import java.util.List;
+import java.util.Map;
 import okhttp3.ResponseBody;
 
 /**
@@ -15,6 +16,10 @@ public interface HistoryContract {
     void initView(List<Translation> history);
 
     void setTranslationFragment(Translation translation);
+
+    void showMessage(String message);
+
+    void setLangs(Map<String, String> langs);
   }
 
   interface HistoryPresenter{

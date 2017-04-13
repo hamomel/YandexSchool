@@ -19,6 +19,7 @@ import com.hamom.yandexschool.utils.ConstantManager;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by hamom on 08.04.17.
@@ -26,16 +27,18 @@ import java.util.List;
 
 public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHolder> {
   private static String TAG = ConstantManager.TAG_PREFIX + "HistoryAdapt: ";
-  private List<Translation> history = new ArrayList<>();
+  private List<Translation> mHistory = new ArrayList<>();
   private WeakReference<Context> mContextWeakReference;
   private HistoryClickListener mListener;
+  private Map<String, String> mLangs;
 
   public HistoryAdapter(HistoryClickListener listener) {
     mListener = listener;
   }
 
-  public void init(List<Translation> history){
-    this.history = history;
+  public void init(List<Translation> history, Map<String, String> langs){
+    mLangs = langs;
+    this.mHistory = history;
     if (AppConfig.DEBUG) Log.d(TAG, "init: " + history);
 
     notifyDataSetChanged();
@@ -56,7 +59,7 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHold
 
   @Override
   public void onBindViewHolder(ViewHolder holder, final int position) {
-    final Translation translation = history.get(position);
+    final Translation translation = mHistory.get(position);
     String translated = "";
     for (String s : translation.getTranslations()) {
       translated = translated.concat(s).concat("; ");
@@ -65,15 +68,18 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHold
     int iconId = translation.isFavorite() ? R.drawable.ic_favorite_accent_24dp
         : R.drawable.ic_favorite_border_accent_24dp;
 
+    String[] langCodes = translation.getDirection().split("-");
+    String direction = mLangs.get(langCodes[0]) + " -> " + mLangs.get(langCodes[1]);
+
     holder.wordTv.setText(translation.getWord());
     holder.translatedTv.setText(translated);
-    holder.directionTv.setText(translation.getDirection());
+    holder.directionTv.setText(direction);
     holder.favoriteIv.setImageDrawable(mContextWeakReference.get().getResources().getDrawable(iconId));
   }
 
   @Override
   public int getItemCount() {
-    return history.size();
+    return mHistory.size();
   }
 
   public class ViewHolder extends RecyclerView.ViewHolder {
@@ -90,19 +96,19 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHold
 
     @OnClick(R.id.favorite_iv)
     void onFavoriteClick(View v){
-      history.get(getAdapterPosition()).changeFavorite();
-      mListener.onClick(v, history.get(getAdapterPosition()));
+      mHistory.get(getAdapterPosition()).changeFavorite();
+      mListener.onClick(v, mHistory.get(getAdapterPosition()));
       notifyDataSetChanged();
     }
 
     @OnClick(R.id.history_item)
     void onItemClick(View v){
-      mListener.onClick(v, history.get(getAdapterPosition()));
+      mListener.onClick(v, mHistory.get(getAdapterPosition()));
     }
 
     @OnLongClick(R.id.history_item)
     boolean onItemLongClick(View v){
-      mListener.onLongClick(v, history.get(getAdapterPosition()));
+      mListener.onLongClick(v, mHistory.get(getAdapterPosition()));
       return true;
     }
 

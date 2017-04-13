@@ -167,12 +167,14 @@ public class TranslationFragment extends Fragment implements TranslationContract
 
         @Override
         public void run() {
-          getActivity().runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-              mPresenter.translate(userInputEt.getText().toString(), mLangFrom, mLangTo);
-            }
-          });
+          if (getActivity() != null){
+            getActivity().runOnUiThread(new Runnable() {
+              @Override
+              public void run() {
+                mPresenter.translate(userInputEt.getText().toString(), mLangFrom, mLangTo);
+              }
+            });
+          }
         }
       }, ConstantManager.TRANSLATION_DELAY_MILLIS);
     }

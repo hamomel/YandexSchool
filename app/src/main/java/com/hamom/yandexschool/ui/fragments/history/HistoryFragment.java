@@ -26,6 +26,7 @@ import com.hamom.yandexschool.utils.ConstantManager;
 import com.hamom.yandexschool.utils.MenuItemHolder;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import javax.inject.Inject;
 
 public class HistoryFragment extends Fragment implements HistoryContract.HistoryView {
@@ -41,6 +42,7 @@ public class HistoryFragment extends Fragment implements HistoryContract.History
 
   private List<MenuItemHolder> mMenuItems;
   private HistoryAdapter mAdapter;
+  private Map<String, String> mLangs;
 
   public HistoryFragment() {
     // Required empty public constructor
@@ -152,7 +154,7 @@ public class HistoryFragment extends Fragment implements HistoryContract.History
   public void initView(List<Translation> history) {
     if (AppConfig.DEBUG) Log.d(TAG, "initView: " + history);
 
-    mAdapter.init(history);
+    mAdapter.init(history, mLangs);
   }
 
   @Override
@@ -161,5 +163,25 @@ public class HistoryFragment extends Fragment implements HistoryContract.History
     TranslationFragment fragment = TranslationFragment.newInstance(translation);
     activity.selectTranslationNavigation();
     activity.setFragment(fragment, false);
+  }
+
+  @Override
+  public void showNoNetworkMessage() {
+    Toast.makeText(getContext(), getString(R.string.no_internet_connectiviti), Toast.LENGTH_SHORT).show();
+  }
+
+  @Override
+  public boolean isNetworkAvailable() {
+    return ((MainActivity) getActivity()).isNetworkAvailable();
+  }
+
+  @Override
+  public void showMessage(String message) {
+    Toast.makeText(getContext(), message, Toast.LENGTH_LONG).show();
+  }
+
+  @Override
+  public void setLangs(Map<String, String> langs) {
+    mLangs = langs;
   }
 }

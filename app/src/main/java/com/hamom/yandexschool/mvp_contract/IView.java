@@ -6,4 +6,8 @@ package com.hamom.yandexschool.mvp_contract;
 
 public interface IView {
   boolean onBackPressed();
+
+  boolean isNetworkAvailable();
+
+  void showNoNetworkMessage();
 }
