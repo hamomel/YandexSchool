@@ -115,6 +115,11 @@ public class DataManager {
     mDbManager.deleteAllTranslations();
   }
 
+  public void getFavoriteHistory(ReqCallback<List<Translation>> callback) {
+    List<Translation> favorites = mDbManager.getFavoriteHistory();
+    callback.onSuccess(favorites);
+  }
+
   public interface ReqCallback<R> {
     void onSuccess(R res);
     void onFailure(Throwable e);

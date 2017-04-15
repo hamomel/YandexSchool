@@ -12,29 +12,28 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import static org.junit.Assert.*;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 /**
  * Created by hamom on 08.04.17.
  */
-public class HistoryPresenterImplTest {
+public class HistoryPresenterTest {
 
   @Mock
   private DataManager mockDataManager;
 
   @Mock
-  private HistoryContract.HistoryView mockView;
+  private HistoryContract.View mockView;
 
   @Captor
   private ArgumentCaptor<DataManager.ReqCallback> mReqCallbackArgumentCaptor;
 
-  private HistoryPresenterImpl mPresenter;
+  private HistoryPresenter mPresenter;
   @Before
   public void setUp() throws Exception {
     MockitoAnnotations.initMocks(this);
-    mPresenter = new HistoryPresenterImpl(mockDataManager);
+    mPresenter = new HistoryPresenter(mockDataManager);
   }
 
   @Test

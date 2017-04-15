@@ -1,4 +1,4 @@
-package com.hamom.yandexschool.ui.fragments.history;
+package com.hamom.yandexschool.ui.fragments.favorite;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -7,15 +7,14 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.ViewGroup;
 import android.widget.Toast;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import com.hamom.yandexschool.R;
 import com.hamom.yandexschool.data.local.models.Translation;
-import com.hamom.yandexschool.di.modules.HistoryModule;
-import com.hamom.yandexschool.mvp_contract.HistoryContract;
+import com.hamom.yandexschool.di.modules.FavoriteModule;
+import com.hamom.yandexschool.mvp_contract.FavoriteContract;
 import com.hamom.yandexschool.ui.activities.MainActivity;
 import com.hamom.yandexschool.ui.fragments.translation.TranslationFragment;
 import com.hamom.yandexschool.utils.App;
@@ -27,10 +26,14 @@ import java.util.List;
 import java.util.Map;
 import javax.inject.Inject;
 
-public class HistoryFragment extends Fragment implements HistoryContract.View {
-  private static String TAG = ConstantManager.TAG_PREFIX + "HistoryFrag: ";
+/**
+ * Created by hamom on 15.04.17.
+ */
+
+public class FavoriteFragment extends Fragment implements FavoriteContract.View{
+  private static String TAG = ConstantManager.TAG_PREFIX + "FavoriteFrag: ";
   @Inject
-  HistoryContract.Presenter mPresenter;
+  FavoriteContract.Presenter mPresenter;
 
   @BindView(R.id.toolbar)
   Toolbar toolbar;
@@ -39,18 +42,15 @@ public class HistoryFragment extends Fragment implements HistoryContract.View {
   RecyclerView historyRecycler;
 
   private List<MenuItemHolder> mMenuItems;
-  private HistoryAdapter mAdapter;
+  private FavoriteAdapter mAdapter;
   private Map<String, String> mLangs;
 
-  public HistoryFragment() {
-    // Required empty public constructor
-  }
 
   //region===================== LifeCycle ==========================
   @Override
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    App.getAppComponent().getHistoryComponent(new HistoryModule()).inject(this);
+    App.getAppComponent().getFavoriteComponent(new FavoriteModule()).inject(this);
     initMenuItems();
   }
 
@@ -70,31 +70,18 @@ public class HistoryFragment extends Fragment implements HistoryContract.View {
     super.onDestroyView();
     mPresenter.dropView();
   }
-
   //endregion
 
   //region===================== Toolbar ==========================
   private void initToolbar() {
     MainActivity activity = ((MainActivity) getActivity());
     activity.setSupportActionBar(toolbar);
-    activity.getSupportActionBar().setTitle(activity.getString(R.string.history));
+    activity.getSupportActionBar().setTitle(activity.getString(R.string.favorite));
     activity.setMenuItems(mMenuItems);
   }
 
   private void initMenuItems() {
     mMenuItems = new ArrayList<>();
-
-    MenuItemHolder itemClear = new MenuItemHolder();
-    itemClear.setItemTitle(getString(R.string.clear_history));
-    itemClear.setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER);
-    itemClear.setListener(new MenuItem.OnMenuItemClickListener() {
-      @Override
-      public boolean onMenuItemClick(MenuItem item) {
-        clearHistory();
-        return true;
-      }
-    });
-    mMenuItems.add(itemClear);
   }
 
   private void clearAppbarMenu() {
@@ -102,19 +89,15 @@ public class HistoryFragment extends Fragment implements HistoryContract.View {
   }
   //endregion
 
-  private void clearHistory() {
-    mPresenter.cleanHistory();
-  }
-
   private void initRecycler() {
-    mAdapter = new HistoryAdapter(getOnClickListener());
-    LinearLayoutManager manager = new LinearLayoutManager(getActivity());
+    mAdapter = new FavoriteAdapter(getOnClickListener());
+    LinearLayoutManager manager = new LinearLayoutManager(getContext());
     historyRecycler.setLayoutManager(manager);
     historyRecycler.setAdapter(mAdapter);
   }
 
-  private HistoryAdapter.HistoryClickListener getOnClickListener() {
-    return new HistoryAdapter.HistoryClickListener() {
+  private FavoriteAdapter.FavoriteClickListener getOnClickListener() {
+    return new FavoriteAdapter.FavoriteClickListener() {
       @Override
       public void onClick(android.view.View v, Translation translation) {
         switch (v.getId()){

@@ -213,7 +213,7 @@ public class TranslationFragment extends Fragment implements TranslationContract
 
   @Override
   public void showNoNetworkMessage() {
-    Toast.makeText(getContext(), getString(R.string.no_internet_connectiviti), Toast.LENGTH_SHORT).show();
+    Toast.makeText(getContext(), getString(R.string.no_internet_connection), Toast.LENGTH_SHORT).show();
   }
 
   @Override

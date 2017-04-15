@@ -1,35 +1,32 @@
-package com.hamom.yandexschool.ui.fragments.history;
+package com.hamom.yandexschool.ui.fragments.favorite;
 
 import android.util.Log;
 import com.hamom.yandexschool.data.local.models.Translation;
 import com.hamom.yandexschool.data.managers.DataManager;
 import com.hamom.yandexschool.data.network.responce.LangsRes;
-import com.hamom.yandexschool.di.scopes.HistoryScope;
+import com.hamom.yandexschool.di.scopes.FavoriteScope;
 import com.hamom.yandexschool.mvp_contract.AbstractPresenter;
-import com.hamom.yandexschool.mvp_contract.HistoryContract;
+import com.hamom.yandexschool.mvp_contract.FavoriteContract;
 import com.hamom.yandexschool.utils.AppConfig;
 import com.hamom.yandexschool.utils.ConstantManager;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
 
 /**
- * Created by hamom on 07.04.17.
+ * Created by hamom on 15.04.17.
  */
-@HistoryScope
-public class HistoryPresenterImpl extends AbstractPresenter<HistoryContract.HistoryView>
-    implements HistoryContract.HistoryPresenter {
-  private static String TAG = ConstantManager.TAG_PREFIX + "HistoryPres: ";
+@FavoriteScope
+public class FavoritePresenter extends AbstractPresenter<FavoriteContract.View>
+    implements FavoriteContract.Presenter{
+  private static String TAG = ConstantManager.TAG_PREFIX + "FavPresenter: ";
 
-  public HistoryPresenterImpl(DataManager dataManager) {
+  public FavoritePresenter(DataManager dataManager) {
     super(dataManager);
   }
 
   @Override
-  public void takeView(HistoryContract.HistoryView view) {
+  public void takeView(FavoriteContract.View view) {
     super.takeView(view);
-    if (AppConfig.DEBUG) Log.d(TAG, "takeView: ");
     getLangs();
   }
 
@@ -41,12 +38,6 @@ public class HistoryPresenterImpl extends AbstractPresenter<HistoryContract.Hist
   @Override
   public void clickItem(Translation translation) {
     mView.setTranslationFragment(translation);
-  }
-
-  @Override
-  public void cleanHistory() {
-    mDataManager.deleteAllHistory();
-    getHistory();
   }
 
   private void getLangs() {
@@ -66,14 +57,16 @@ public class HistoryPresenterImpl extends AbstractPresenter<HistoryContract.Hist
     return false;
   }
 
-  private void getHistory(){
-    mDataManager.getAllHistory(getHistoryCallback());
+  private void getFavoriteHistory(){
+    mDataManager.getFavoriteHistory(getHistoryCallback());
   }
 
   private DataManager.ReqCallback<List<Translation>> getHistoryCallback(){
     return new DataManager.ReqCallback<List<Translation>>() {
       @Override
       public void onSuccess(List<Translation> res) {
+        if (AppConfig.DEBUG) Log.d(TAG, "onSuccess: " + res);
+
         if (hasView()) getView().initView(res);
       }
 
@@ -88,12 +81,14 @@ public class HistoryPresenterImpl extends AbstractPresenter<HistoryContract.Hist
    * make callback to receive map of languages
    */
   private DataManager.ReqCallback<LangsRes> getLangsCallback() {
+    if (AppConfig.DEBUG) Log.d(TAG, "getLangsCallback: ");
+
     return new DataManager.ReqCallback<LangsRes>() {
       @Override
       public void onSuccess(LangsRes res) {
         if (hasView()){
           getView().setLangs(res.getLangs());
-          getHistory();
+          getFavoriteHistory();
         }
       }
 

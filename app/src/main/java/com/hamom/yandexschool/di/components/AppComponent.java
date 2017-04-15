@@ -1,6 +1,7 @@
 package com.hamom.yandexschool.di.components;
 
 import com.hamom.yandexschool.di.modules.AppModule;
+import com.hamom.yandexschool.di.modules.FavoriteModule;
 import com.hamom.yandexschool.di.modules.HistoryModule;
 import com.hamom.yandexschool.di.modules.NetworkModule;
 import com.hamom.yandexschool.di.modules.TranslationModule;
@@ -15,4 +16,6 @@ import javax.inject.Singleton;
 public interface AppComponent {
   TranslationComponent getTranslationComponent(TranslationModule translationModule);
   HistoryComponent getHistoryComponent(HistoryModule historyModule);
+
+  FavoriteComponent getFavoriteComponent(FavoriteModule favoriteModule);
 }

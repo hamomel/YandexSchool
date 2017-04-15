@@ -187,6 +187,43 @@ public class DbManager {
     return result;
   }
 
+  public List<Translation> getFavoriteHistory() {
+    List<Translation> result = new ArrayList<>();
+    SQLiteDatabase readableDb = mDbHelper.getReadableDatabase();
+
+    String[] projection = {
+        TransEntry.COLUMN_NAME_ID,
+        TransEntry.COLUMN_NAME_WORD,
+        TransEntry.COLUMN_NAME_DIRECTION,
+        TransEntry.COLUMN_NAME_FAVORITE,
+        TransEntry.COLUMN_NAME_TIME
+    };
+
+    String selection = TransEntry.COLUMN_NAME_FAVORITE + " LIKE ?";
+    String[] args = {String.valueOf(1)};
+
+    Cursor c = readableDb.query(TransEntry.TABLE_NAME, projection, selection, args, null, null,
+        TransEntry.COLUMN_NAME_TIME);
+
+    if (c.moveToFirst()){
+      do {
+        long id = Long.parseLong(c.getString(c.getColumnIndex(TransEntry.COLUMN_NAME_ID)));
+        String word = c.getString(c.getColumnIndex(TransEntry.COLUMN_NAME_WORD));
+        String direction = c.getString(c.getColumnIndex(TransEntry.COLUMN_NAME_DIRECTION));
+        boolean favorite = c.getInt(c.getColumnIndex(TransEntry.COLUMN_NAME_FAVORITE)) == 1;
+        long time = Long.parseLong(c.getString(c.getColumnIndex(TransEntry.COLUMN_NAME_TIME)));
+        List<String> translations = getWords(id);
+
+        Translation translation = new Translation(id, word, translations, direction, time, favorite);
+        result.add(translation);
+      } while (c.moveToNext());
+    }
+
+    c.close();
+    readableDb.close();
+    return result;
+  }
+
   public void deleteAllTranslations(){
     SQLiteDatabase writableDb = mDbHelper.getWritableDatabase();
     writableDb.delete(TransEntry.TABLE_NAME, null, null);

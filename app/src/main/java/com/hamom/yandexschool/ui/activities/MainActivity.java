@@ -16,6 +16,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import com.hamom.yandexschool.R;
 import com.hamom.yandexschool.mvp_contract.IView;
+import com.hamom.yandexschool.ui.fragments.favorite.FavoriteFragment;
 import com.hamom.yandexschool.ui.fragments.history.HistoryFragment;
 import com.hamom.yandexschool.ui.fragments.translation.TranslationFragment;
 import com.hamom.yandexschool.utils.AppConfig;
@@ -84,14 +85,13 @@ public class MainActivity extends AppCompatActivity {
           Fragment fragment = getCurrentFragment();
           switch (item.getItemId()) {
             case R.id.navigation_translate:
-
-                fragment = new TranslationFragment();
+              fragment = new TranslationFragment();
               break;
             case R.id.navigation_favorite:
+              fragment = new FavoriteFragment();
               break;
             case R.id.navigation_history:
-
-                fragment = new HistoryFragment();
+              fragment = new HistoryFragment();
               break;
           }
           if (getCurrentFragment().getClass() != fragment.getClass()){
