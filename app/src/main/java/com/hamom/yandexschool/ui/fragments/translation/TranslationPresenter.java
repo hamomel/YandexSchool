@@ -138,17 +138,16 @@ public class TranslationPresenter extends AbstractPresenter<TranslationContract.
   /**
    * make callback to receive map of languages
    */
-  private DataManager.ReqCallback<LangsRes> getLangsCallback() {
-    return new DataManager.ReqCallback<LangsRes>() {
+  private DataManager.ReqCallback<Map<String, String>> getLangsCallback() {
+    return new DataManager.ReqCallback<Map<String, String>>() {
       @Override
-      public void onSuccess(LangsRes res) {
-        if (AppConfig.DEBUG) Log.d(TAG, "onSuccess: " + res.getLangs());
-        Set<Map.Entry<String, String>> set = res.getLangs().entrySet();
+      public void onSuccess(Map<String, String> res) {
+        Set<Map.Entry<String, String>> set = res.entrySet();
         for (Map.Entry<String, String> entry : set) {
           mLangsByName.put(entry.getValue(), entry.getKey());
         }
 
-        mLangsByCode = res.getLangs();
+        mLangsByCode = res;
         setViewLangs();
       }
 

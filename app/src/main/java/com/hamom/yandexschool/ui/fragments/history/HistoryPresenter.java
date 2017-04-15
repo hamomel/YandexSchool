@@ -11,6 +11,7 @@ import com.hamom.yandexschool.utils.AppConfig;
 import com.hamom.yandexschool.utils.ConstantManager;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 /**
  * Created by hamom on 07.04.17.
@@ -19,7 +20,7 @@ import java.util.Locale;
 public class HistoryPresenter extends AbstractPresenter<HistoryContract.View>
     implements HistoryContract.Presenter {
   private static String TAG = ConstantManager.TAG_PREFIX + "HistoryPres: ";
-
+  private Map<String, String> mLangs;
   public HistoryPresenter(DataManager dataManager) {
     super(dataManager);
   }
@@ -72,7 +73,7 @@ public class HistoryPresenter extends AbstractPresenter<HistoryContract.View>
     return new DataManager.ReqCallback<List<Translation>>() {
       @Override
       public void onSuccess(List<Translation> res) {
-        if (hasView()) getView().initView(res);
+        if (hasView()) getView().initView(res, mLangs);
       }
 
       @Override
@@ -85,14 +86,14 @@ public class HistoryPresenter extends AbstractPresenter<HistoryContract.View>
   /**
    * make callback to receive map of languages
    */
-  private DataManager.ReqCallback<LangsRes> getLangsCallback() {
-    return new DataManager.ReqCallback<LangsRes>() {
+  private DataManager.ReqCallback<Map<String, String>> getLangsCallback() {
+    if (AppConfig.DEBUG) Log.d(TAG, "getLangsCallback: ");
+
+    return new DataManager.ReqCallback<Map<String, String>>() {
       @Override
-      public void onSuccess(LangsRes res) {
-        if (hasView()){
-          getView().setLangs(res.getLangs());
-          getHistory();
-        }
+      public void onSuccess(Map<String, String> res) {
+        mLangs = res;
+        getHistory();
       }
 
       @Override

@@ -22,4 +22,10 @@ final class TranslateDbContract {
     static final String COLUMN_NAME_WORD = "word";
     static final String COLUMN_NAME_TRANSLATION_ID = "translationId";
   }
+
+  static abstract class LangEntry {
+    static final String TABLE_NAME = "langs";
+    static final String COLUMN_NAME_CODE = "code";
+    static final String COLUMN_NAME_NAME = "name";
+  }
 }

@@ -10,6 +10,8 @@ import com.hamom.yandexschool.utils.ConstantManager;
 import com.hamom.yandexschool.utils.errors.ApiError;
 import com.hamom.yandexschool.utils.AppConfig;
 import java.util.List;
+import java.util.Map;
+import java.util.StringTokenizer;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import retrofit2.Call;
@@ -39,6 +41,8 @@ public class DataManager {
     Translation translation = new Translation(text, lang);
 
     if (mDbManager.checkAlreadyExist(translation) != null){
+      translation.setTime(System.currentTimeMillis());
+      mDbManager.updateTranslation(translation);
       callback.onSuccess(translation);
       return;
     }
@@ -70,13 +74,21 @@ public class DataManager {
     });
   }
 
-  public void getLangs(String ui, final ReqCallback<LangsRes> callback){
+  public void getLangs(String ui, final ReqCallback<Map<String, String>> callback){
+    Map<String, String> langs = mDbManager.getLangs();
+    if (langs != null && !langs.isEmpty()){
+      callback.onSuccess(langs);
+      return;
+    }
+
     Call<LangsRes> call = mRestService.getLangs(ui, AppConfig.API_KEY);
     call.enqueue(new Callback<LangsRes>() {
       @Override
       public void onResponse(Call<LangsRes> call, Response<LangsRes> response) {
         if (response.code() == 200){
-          callback.onSuccess(response.body());
+          Map<String, String> langs = response.body().getLangs();
+          mDbManager.saveLangs(langs);
+          callback.onSuccess(langs);
         } else {
           callback.onFailure(new ApiError(response.code()));
         }

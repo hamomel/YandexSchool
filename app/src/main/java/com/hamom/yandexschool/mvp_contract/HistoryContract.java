@@ -12,13 +12,12 @@ public interface HistoryContract {
 
   interface View extends IView{
 
-    void initView(List<Translation> history);
+    void initView(List<Translation> history, Map<String, String> langs);
 
     void setTranslationFragment(Translation translation);
 
     void showMessage(String message);
 
-    void setLangs(Map<String, String> langs);
   }
 
   interface Presenter {

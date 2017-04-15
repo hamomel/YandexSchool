@@ -11,7 +11,7 @@ import javax.inject.Inject;
 
 public class DbHelper extends SQLiteOpenHelper {
   private static final String  DB_NAME = "Translation.db";
-  private static final int DB_VERSION = 1;
+  private static final int DB_VERSION = 2;
 
   private static final String TEXT_TYPE = " TEXT";
 
@@ -36,6 +36,12 @@ public class DbHelper extends SQLiteOpenHelper {
       TranslateDbContract.TransEntry.COLUMN_NAME_ID + ")" +
       " )";
 
+  private static final String SQL_CREATE_LANG_ENTRIES = "CREATE TABLE " +
+      TranslateDbContract.LangEntry.TABLE_NAME + " (" +
+      TranslateDbContract.LangEntry.COLUMN_NAME_CODE + TEXT_TYPE + COMMA_SEP +
+      TranslateDbContract.LangEntry.COLUMN_NAME_NAME + TEXT_TYPE +
+      " )";
+
   @Inject
   public DbHelper(Context context) {
     super(context, DB_NAME, null, DB_VERSION);
@@ -45,11 +51,11 @@ public class DbHelper extends SQLiteOpenHelper {
   public void onCreate(SQLiteDatabase db) {
     db.execSQL(SQL_CREATE_TRANSLATE_ENTRIES);
     db.execSQL(SQL_CREATE_WORD_ENTRIES);
-    //db.setForeignKeyConstraintsEnabled(true);
+    db.execSQL(SQL_CREATE_LANG_ENTRIES);
     }
 
   @Override
   public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-
+    db.execSQL(SQL_CREATE_LANG_ENTRIES);
   }
 }

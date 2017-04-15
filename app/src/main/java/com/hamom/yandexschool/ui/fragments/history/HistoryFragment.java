@@ -40,7 +40,6 @@ public class HistoryFragment extends Fragment implements HistoryContract.View {
 
   private List<MenuItemHolder> mMenuItems;
   private HistoryAdapter mAdapter;
-  private Map<String, String> mLangs;
 
   public HistoryFragment() {
     // Required empty public constructor
@@ -149,10 +148,10 @@ public class HistoryFragment extends Fragment implements HistoryContract.View {
   }
 
   @Override
-  public void initView(List<Translation> history) {
+  public void initView(List<Translation> history, Map<String, String> langs) {
     if (AppConfig.DEBUG) Log.d(TAG, "initView: " + history);
 
-    mAdapter.init(history, mLangs);
+    mAdapter.init(history, langs);
   }
 
   @Override
@@ -178,8 +177,4 @@ public class HistoryFragment extends Fragment implements HistoryContract.View {
     Toast.makeText(getContext(), message, Toast.LENGTH_LONG).show();
   }
 
-  @Override
-  public void setLangs(Map<String, String> langs) {
-    mLangs = langs;
-  }
 }

@@ -43,7 +43,6 @@ public class FavoriteFragment extends Fragment implements FavoriteContract.View{
 
   private List<MenuItemHolder> mMenuItems;
   private FavoriteAdapter mAdapter;
-  private Map<String, String> mLangs;
 
 
   //region===================== LifeCycle ==========================
@@ -132,10 +131,10 @@ public class FavoriteFragment extends Fragment implements FavoriteContract.View{
   }
 
   @Override
-  public void initView(List<Translation> history) {
+  public void initView(List<Translation> history, Map<String, String> langs) {
     if (AppConfig.DEBUG) Log.d(TAG, "initView: " + history);
 
-    mAdapter.init(history, mLangs);
+    mAdapter.init(history, langs);
   }
 
   @Override
@@ -159,10 +158,5 @@ public class FavoriteFragment extends Fragment implements FavoriteContract.View{
   @Override
   public void showMessage(String message) {
     Toast.makeText(getContext(), message, Toast.LENGTH_LONG).show();
-  }
-
-  @Override
-  public void setLangs(Map<String, String> langs) {
-    mLangs = langs;
   }
 }

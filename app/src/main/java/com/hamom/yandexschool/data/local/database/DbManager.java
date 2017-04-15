@@ -9,11 +9,14 @@ import com.hamom.yandexschool.data.local.models.WordTranslated;
 import com.hamom.yandexschool.utils.AppConfig;
 import com.hamom.yandexschool.utils.ConstantManager;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import javax.inject.Inject;
 import org.jetbrains.annotations.NotNull;
 import com.hamom.yandexschool.data.local.database.TranslateDbContract.TransEntry;
 import com.hamom.yandexschool.data.local.database.TranslateDbContract.WordEntry;
+import com.hamom.yandexschool.data.local.database.TranslateDbContract.LangEntry;
 
 import static dagger.internal.Preconditions.checkNotNull;
 
@@ -95,16 +98,12 @@ public class DbManager {
     String id = c.getString(c.getColumnIndex(TransEntry.COLUMN_NAME_ID));
     long longId = Long.parseLong(id);
     int favorite = c.getInt(c.getColumnIndex(TransEntry.COLUMN_NAME_FAVORITE));
+    long time = c.getInt(c.getColumnIndex(TransEntry.COLUMN_NAME_TIME));
 
-    translation.setTime(System.currentTimeMillis());
+    translation.setTime(time);
     translation.setId(longId);
     translation.setFavorite(favorite != 0);
     translation.setTranslations(getWords(longId));
-
-    if (AppConfig.DEBUG) Log.d(TAG, "checkAlreadyExist: " + id + " " + translation.getTime());
-
-    // update translation time
-    updateTranslation(translation);
 
     c.close();
     readableDatabase.close();
@@ -229,6 +228,40 @@ public class DbManager {
     writableDb.delete(TransEntry.TABLE_NAME, null, null);
     writableDb.delete(WordEntry.TABLE_NAME, null, null);
     writableDb.close();
+  }
+
+  public void saveLangs(Map<String, String> langs){
+    SQLiteDatabase writableDb = mDbHelper.getWritableDatabase();
+
+    for (Map.Entry<String, String> entry : langs.entrySet()) {
+      ContentValues values = new ContentValues();
+      values.put(LangEntry.COLUMN_NAME_CODE, entry.getKey());
+      values.put(LangEntry.COLUMN_NAME_NAME, entry.getValue());
+      writableDb.insert(LangEntry.TABLE_NAME, null, values);
+    }
+    writableDb.close();
+  }
+
+  public Map<String, String> getLangs(){
+    Map<String, String> result = new HashMap<>();
+    SQLiteDatabase readableDb = mDbHelper.getReadableDatabase();
+
+    String[] projection = {
+        LangEntry.COLUMN_NAME_CODE,
+        LangEntry.COLUMN_NAME_NAME
+    };
+
+    Cursor c = readableDb.query(LangEntry.TABLE_NAME, projection, null, null, null, null, null);
+
+    if (c.moveToFirst()){
+      do {
+        result.put(c.getString(c.getColumnIndex(LangEntry.COLUMN_NAME_CODE)),
+                   c.getString(c.getColumnIndex(LangEntry.COLUMN_NAME_NAME)));
+      } while (c.moveToNext());
+    }
+    c.close();
+    readableDb.close();
+    return result;
   }
 
 }

@@ -68,8 +68,9 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHold
     int iconId = translation.isFavorite() ? R.drawable.ic_favorite_accent_24dp
         : R.drawable.ic_favorite_border_accent_24dp;
 
+    char arrow = 8594;
     String[] langCodes = translation.getDirection().split("-");
-    String direction = mLangs.get(langCodes[0]) + " -> " + mLangs.get(langCodes[1]);
+    String direction = mLangs.get(langCodes[0]) + " " + arrow + " " + mLangs.get(langCodes[1]);
 
     holder.wordTv.setText(translation.getWord());
     holder.translatedTv.setText(translated);
