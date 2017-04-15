@@ -166,7 +166,7 @@ public class DbManager {
     };
 
     Cursor c = readableDb.query(TransEntry.TABLE_NAME, projection, null, null, null, null,
-        TransEntry.COLUMN_NAME_TIME);
+        TransEntry.COLUMN_NAME_TIME + " DESC");
 
     if (c.moveToFirst()){
       do {
@@ -203,7 +203,7 @@ public class DbManager {
     String[] args = {String.valueOf(1)};
 
     Cursor c = readableDb.query(TransEntry.TABLE_NAME, projection, selection, args, null, null,
-        TransEntry.COLUMN_NAME_TIME);
+        TransEntry.COLUMN_NAME_TIME + " DESC");
 
     if (c.moveToFirst()){
       do {
