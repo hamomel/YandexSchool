@@ -90,14 +90,17 @@ public class TranslationFragment extends Fragment implements TranslationContract
 
   @OnClick(R.id.swap_language_iv)
     void onSwapClick(){
-
     String tmp = mLangFrom;
     mLangFrom = mLangTo;
     mLangTo = tmp;
     spinnerFrom.setSelection(mLangs.indexOf(mLangFrom));
     spinnerTo.setSelection(mLangs.indexOf(mLangTo));
-
     }
+
+  @OnClick(R.id.yandex_tv)
+  void onYandexClick(){
+    ((MainActivity) getActivity()).openYandexTranslate();
+  }
 
   @OnTextChanged(R.id.user_input_et)
   void onTextChanged(final CharSequence text){

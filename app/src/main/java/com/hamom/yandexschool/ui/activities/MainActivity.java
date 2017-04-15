@@ -1,17 +1,21 @@
 package com.hamom.yandexschool.ui.activities;
 
 import android.content.Context;
+import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import com.hamom.yandexschool.R;
@@ -19,18 +23,21 @@ import com.hamom.yandexschool.mvp_contract.IView;
 import com.hamom.yandexschool.ui.fragments.favorite.FavoriteFragment;
 import com.hamom.yandexschool.ui.fragments.history.HistoryFragment;
 import com.hamom.yandexschool.ui.fragments.translation.TranslationFragment;
+import com.hamom.yandexschool.utils.App;
 import com.hamom.yandexschool.utils.AppConfig;
 import com.hamom.yandexschool.utils.ConstantManager;
 import com.hamom.yandexschool.utils.MenuItemHolder;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
+  public static final int APP_CLOSE_INTERVAL = 2000;
   private static String TAG = ConstantManager.TAG_PREFIX + "MainActivity: ";
   private FragmentManager mFragmentManager;
   private List<MenuItemHolder> mMenuItems;
 
   @BindView(R.id.navigation)
   BottomNavigationView navigation;
+  private long mBackPressed;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -69,10 +76,16 @@ public class MainActivity extends AppCompatActivity {
     return super.onPrepareOptionsMenu(menu);
   }
 
+  @SuppressWarnings("all")
   @Override
   public void onBackPressed() {
     if (!((IView) getCurrentFragment()).onBackPressed()){
-      super.onBackPressed();
+      if ((System.currentTimeMillis() - mBackPressed) < APP_CLOSE_INTERVAL){
+        super.onBackPressed();
+      } else {
+        Toast.makeText(this, getString(R.string.press_one_more_time_to_exit), APP_CLOSE_INTERVAL).show();
+        mBackPressed = System.currentTimeMillis();
+      }
     }
   }
 
@@ -104,7 +117,10 @@ public class MainActivity extends AppCompatActivity {
   //endregion
 
   public void setFragment(Fragment fragment, boolean addToBackStack){
-    mFragmentManager.beginTransaction().replace(R.id.main_frame, fragment).commit();
+    FragmentTransaction transaction = mFragmentManager.beginTransaction();
+    transaction.replace(R.id.main_frame, fragment);
+    if (addToBackStack) transaction.addToBackStack(null);
+    transaction.commit();
   }
 
   public void selectTranslationNavigation(){
@@ -119,5 +135,12 @@ public class MainActivity extends AppCompatActivity {
         Context.CONNECTIVITY_SERVICE);
     NetworkInfo networkInfo = cm.getActiveNetworkInfo();
     return networkInfo != null && networkInfo.isConnectedOrConnecting();
+  }
+
+  public void openYandexTranslate(){
+    String uri = getString(R.string.yandex_url);
+    Intent intent = new Intent(Intent.ACTION_VIEW);
+    intent.setData(Uri.parse(uri));
+    startActivity(intent);
   }
 }

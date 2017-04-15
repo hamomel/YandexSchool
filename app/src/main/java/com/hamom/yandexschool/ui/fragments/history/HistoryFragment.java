@@ -12,6 +12,7 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 import com.hamom.yandexschool.R;
 import com.hamom.yandexschool.data.local.models.Translation;
 import com.hamom.yandexschool.di.modules.HistoryModule;
@@ -40,6 +41,11 @@ public class HistoryFragment extends Fragment implements HistoryContract.View {
 
   private List<MenuItemHolder> mMenuItems;
   private HistoryAdapter mAdapter;
+
+  @OnClick(R.id.yandex_tv)
+  void onYandexClick(){
+    ((MainActivity) getActivity()).openYandexTranslate();
+  }
 
   public HistoryFragment() {
     // Required empty public constructor

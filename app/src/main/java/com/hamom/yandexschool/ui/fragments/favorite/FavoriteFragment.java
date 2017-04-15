@@ -2,6 +2,7 @@ package com.hamom.yandexschool.ui.fragments.favorite;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -11,6 +12,7 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 import com.hamom.yandexschool.R;
 import com.hamom.yandexschool.data.local.models.Translation;
 import com.hamom.yandexschool.di.modules.FavoriteModule;
@@ -44,7 +46,10 @@ public class FavoriteFragment extends Fragment implements FavoriteContract.View{
   private List<MenuItemHolder> mMenuItems;
   private FavoriteAdapter mAdapter;
 
-
+  @OnClick(R.id.yandex_tv)
+  void onYandexClick(){
+    ((MainActivity) getActivity()).openYandexTranslate();
+  }
   //region===================== LifeCycle ==========================
   @Override
   public void onCreate(Bundle savedInstanceState) {
