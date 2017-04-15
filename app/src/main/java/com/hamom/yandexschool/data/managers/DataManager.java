@@ -103,14 +103,10 @@ public class DataManager {
   }
 
   public void saveLastLangs(String from, String to){
-    if (AppConfig.DEBUG) Log.d(TAG, "saveLastLangs: " + from + " " + to);
-
     mAppPreferencesManager.saveLastLangs(from, to);
   }
 
-  public String[] getLastlangs(){
-    if (AppConfig.DEBUG) Log.d(TAG, "getLastlangs: " + mAppPreferencesManager.getLastLangs()[0]);
-
+  public String[] getLastLangs(){
     return mAppPreferencesManager.getLastLangs();
   }
 

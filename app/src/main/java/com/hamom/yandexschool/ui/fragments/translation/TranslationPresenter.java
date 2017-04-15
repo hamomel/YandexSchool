@@ -4,7 +4,6 @@ import android.support.annotation.Nullable;
 import android.util.Log;
 import com.hamom.yandexschool.data.managers.DataManager;
 import com.hamom.yandexschool.data.local.models.Translation;
-import com.hamom.yandexschool.data.network.responce.LangsRes;
 import com.hamom.yandexschool.di.scopes.TranslationScope;
 import com.hamom.yandexschool.mvp_contract.AbstractPresenter;
 import com.hamom.yandexschool.mvp_contract.TranslationContract;
@@ -63,7 +62,7 @@ public class TranslationPresenter extends AbstractPresenter<TranslationContract.
   @Override
   public void fetchLastLangs() {
     if (hasView()){
-      getView().setLastLangs(mDataManager.getLastlangs());
+      getView().setLastLangs(mDataManager.getLastLangs());
     }
   }
 

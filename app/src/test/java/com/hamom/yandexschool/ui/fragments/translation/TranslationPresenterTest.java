@@ -30,7 +30,6 @@ import static org.mockito.Mockito.when;
  */
 public class TranslationPresenterTest {
 
-
   @Mock
   DataManager mDataManager;
 
@@ -39,26 +38,22 @@ public class TranslationPresenterTest {
 
   private TranslationContract.Presenter mPresenter;
   private Map<String, String> langs = new HashMap<>();
+
+  @SuppressWarnings("unchecked")
   @Before
   public void setUp() throws Exception {
     MockitoAnnotations.initMocks(this);
 
     langs.put("ru", "Russian");
-    final LangsRes res = new LangsRes(langs);
     doAnswer(new Answer() {
       @Override
       public Object answer(InvocationOnMock invocation) throws Throwable {
-        ((DataManager.ReqCallback) invocation.getArguments()[1]).onSuccess(res);
+        ((DataManager.ReqCallback) invocation.getArguments()[1]).onSuccess(langs);
         return null;
       }
     }).when(mDataManager).getLangs(anyString(), any(DataManager.ReqCallback.class));
 
     mPresenter = new TranslationPresenter(mDataManager);
-  }
-
-  @After
-  public void tearDown() throws Exception {
-
   }
 
   @Test
@@ -91,6 +86,30 @@ public class TranslationPresenterTest {
     mPresenter.saveLastLangs("anyString", "anyString");
     verify(mDataManager).saveLastLangs(anyString(), anyString());
 
+  }
+
+  @Test
+  public void decodeLangsAndSet() throws Exception {
+    String directoin = "ru-ru";
+    String[] decoded = new String[]{"Russian", "Russian"};
+    mPresenter.takeView(mView);
+    mPresenter.decodeLangsAndSet(directoin);
+    verify(mView, times(1)).setLastLangs(decoded);
+  }
+
+  @Test
+  public void fetchLastLangs() throws Exception {
+    String[] lastLangs = new String[]{"anyString", "anyString"};
+    when(mDataManager.getLastLangs()).thenReturn(lastLangs);
+    mPresenter.takeView(mView);
+    mPresenter.fetchLastLangs();
+    verify(mView, times(1)).setLastLangs(lastLangs);
+  }
+
+  @Test
+  public void getLangNames() throws Exception {
+    mPresenter.takeView(mView);
+    assertEquals("Russian", mPresenter.getLangNames().get(0));
   }
 
 }
