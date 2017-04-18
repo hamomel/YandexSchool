@@ -50,6 +50,8 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHold
 
   public void addSelection(Translation translation){
     mSelectedItems.add(translation);
+    if (AppConfig.DEBUG) Log.d(TAG, "addSelection: " + mSelectedItems.size());
+
     notifyDataSetChanged();
   }
 
@@ -59,6 +61,13 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHold
 
   public void deSelectItem(Translation translation) {
     mSelectedItems.remove(translation);
+    notifyDataSetChanged();
+  }
+
+  public void deleteSelectedItems() {
+    for (Translation selectedItem : mSelectedItems) {
+      mHistory.remove(selectedItem);
+    }
     notifyDataSetChanged();
   }
 

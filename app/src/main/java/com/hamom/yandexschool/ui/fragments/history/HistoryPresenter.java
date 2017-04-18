@@ -70,6 +70,23 @@ public class HistoryPresenter extends AbstractPresenter<HistoryContract.View>
     }
   }
 
+
+  @Override
+  public void deleteMenuClick() {
+    if (hasView()) {
+      deleteSelectedItemsFromDb(getView().getSelectedItems());
+      getView().deleteSelectedItems();
+    }
+  }
+
+  private void deleteSelectedItemsFromDb(List<Translation> selectedItems) {
+    if (AppConfig.DEBUG) Log.d(TAG, "deleteSelectedItemsFromDb: " + selectedItems.size());
+
+    for (Translation selectedItem : selectedItems) {
+      mDataManager.deleteTranslation(selectedItem);
+    }
+  }
+
   @Override
   public void cleanHistory() {
     mDataManager.deleteAllHistory();

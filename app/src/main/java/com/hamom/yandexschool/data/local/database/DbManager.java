@@ -264,4 +264,14 @@ public class DbManager {
     return result;
   }
 
+  public void deleteTranslation(Translation translation) {
+    if (AppConfig.DEBUG) Log.d(TAG, "deleteTranslation: " + translation.getWord());
+
+    SQLiteDatabase writableDb = mDbHelper.getWritableDatabase();
+    String id = String.valueOf(translation.getId());
+    String projection = TransEntry.COLUMN_NAME_ID + " LIKE ?";
+    String[] args = new String[]{id};
+    writableDb.delete(TransEntry.TABLE_NAME, projection, args);
+    writableDb.close();
+  }
 }

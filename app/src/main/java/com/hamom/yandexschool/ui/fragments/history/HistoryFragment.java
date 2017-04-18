@@ -1,6 +1,7 @@
 package com.hamom.yandexschool.ui.fragments.history;
 
 import android.os.Bundle;
+import android.support.design.widget.AppBarLayout;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.LinearLayoutManager;
@@ -54,6 +55,7 @@ public class HistoryFragment extends Fragment implements HistoryContract.View {
   @Override
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
+    setRetainInstance(true);
     App.getAppComponent().getHistoryComponent(new HistoryModule()).inject(this);
   }
 
@@ -114,6 +116,14 @@ public class HistoryFragment extends Fragment implements HistoryContract.View {
       actionBar.setDisplayHomeAsUpEnabled(false);
     }
     activity.setMenuItems(getNormalModeMenu());
+    setNormalScrollFlags();
+  }
+
+  private void setNormalScrollFlags() {
+    AppBarLayout.LayoutParams params = ((AppBarLayout.LayoutParams) toolbar.getLayoutParams());
+    params.setScrollFlags(AppBarLayout.LayoutParams.SCROLL_FLAG_SCROLL |
+        AppBarLayout.LayoutParams.SCROLL_FLAG_ENTER_ALWAYS |
+    AppBarLayout.LayoutParams.SCROLL_FLAG_SNAP);
   }
 
   private List<MenuItemHolder> getNormalModeMenu() {
@@ -142,6 +152,12 @@ public class HistoryFragment extends Fragment implements HistoryContract.View {
       actionBar.setTitle(String.valueOf(getSelectedItems().size()));
     }
     activity.setMenuItems(getSelectedModeMenu());
+    setSelectionModeScrollFlags();
+  }
+
+  private void setSelectionModeScrollFlags() {
+    AppBarLayout.LayoutParams params = ((AppBarLayout.LayoutParams) toolbar.getLayoutParams());
+    params.setScrollFlags(0);
   }
 
   private List<MenuItemHolder> getSelectedModeMenu() {
@@ -153,7 +169,7 @@ public class HistoryFragment extends Fragment implements HistoryContract.View {
     itemDelete.setListener(new MenuItem.OnMenuItemClickListener() {
       @Override
       public boolean onMenuItemClick(MenuItem item) {
-        deleteSelectedItems();
+        deleteMenuClick();
         return true;
       }
     });
@@ -175,8 +191,8 @@ public class HistoryFragment extends Fragment implements HistoryContract.View {
   }
   //endregion
 
-  private void deleteSelectedItems() {
-    showMessage("Delete");
+  private void deleteMenuClick() {
+    mPresenter.deleteMenuClick();
   }
 
   private void clearHistory() {
@@ -215,6 +231,12 @@ public class HistoryFragment extends Fragment implements HistoryContract.View {
   @Override
   public void deselectItem(Translation translation) {
     mAdapter.deSelectItem(translation);
+  }
+
+  @Override
+  public void deleteSelectedItems() {
+    mAdapter.deleteSelectedItems();
+    setNormalMode();
   }
 
   //endregion

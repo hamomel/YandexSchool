@@ -35,6 +35,8 @@ public interface HistoryContract {
     boolean isInSelectionMode();
 
     void deselectItem(Translation translation);
+
+    void deleteSelectedItems();
   }
 
   interface Presenter {
@@ -49,5 +51,7 @@ public interface HistoryContract {
     void clickItem(Translation translation);
 
     void onLongItemClick(Translation translation);
+
+    void deleteMenuClick();
   }
 }

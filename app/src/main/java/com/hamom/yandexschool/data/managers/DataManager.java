@@ -128,6 +128,10 @@ public class DataManager {
     callback.onSuccess(favorites);
   }
 
+  public void deleteTranslation(Translation translation) {
+    mDbManager.deleteTranslation(translation);
+  }
+
   public interface ReqCallback<R> {
     void onSuccess(R res);
     void onFailure(Throwable e);
