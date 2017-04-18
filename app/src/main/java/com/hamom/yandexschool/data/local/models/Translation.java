@@ -38,6 +38,24 @@ public class Translation implements Parcelable{
     this.direction = direction;
   }
 
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+
+    Translation that = (Translation) o;
+
+    if (word != null ? !word.equals(that.word) : that.word != null) return false;
+    return direction != null ? direction.equals(that.direction) : that.direction == null;
+  }
+
+  @Override
+  public int hashCode() {
+    int result = word != null ? word.hashCode() : 0;
+    result = 31 * result + (direction != null ? direction.hashCode() : 0);
+    return result;
+  }
+
   public long getId() {
     return id;
   }

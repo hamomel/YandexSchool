@@ -63,9 +63,13 @@ public class HistoryFragment extends Fragment implements HistoryContract.View {
   public android.view.View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
     android.view.View v = inflater.inflate(R.layout.fragment_history, container, false);
     ButterKnife.bind(this, v);
-    setNormalToolbar();
     initRecycler();
     mPresenter.takeView(this);
+    if (mIsSelectionMode){
+      setSelectionModeToolbar();
+    } else {
+      setNormalToolbar();
+    }
     return v;
   }
 
@@ -78,10 +82,13 @@ public class HistoryFragment extends Fragment implements HistoryContract.View {
   //endregion
 
   private void initRecycler() {
-    mAdapter = new HistoryAdapter(getOnClickListener());
+    if (mAdapter == null){
+      mAdapter = new HistoryAdapter(getOnClickListener());
+    }
     LinearLayoutManager manager = new LinearLayoutManager(getActivity());
     historyRecycler.setLayoutManager(manager);
     historyRecycler.setAdapter(mAdapter);
+    mAdapter.notifyDataSetChanged();
   }
 
   private HistoryAdapter.HistoryClickListener getOnClickListener() {
@@ -146,6 +153,7 @@ public class HistoryFragment extends Fragment implements HistoryContract.View {
   @Override
   public void setSelectionModeToolbar() {
     MainActivity activity = ((MainActivity) getActivity());
+    activity.setSupportActionBar(toolbar);
     ActionBar actionBar = activity.getSupportActionBar();
     if (actionBar != null){
       actionBar.setDisplayHomeAsUpEnabled(true);

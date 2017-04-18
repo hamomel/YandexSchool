@@ -50,7 +50,7 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHold
 
   public void addSelection(Translation translation){
     mSelectedItems.add(translation);
-    if (AppConfig.DEBUG) Log.d(TAG, "addSelection: " + mSelectedItems.size());
+    if (AppConfig.DEBUG) Log.d(TAG, "addSelection: " + mSelectedItems);
 
     notifyDataSetChanged();
   }
