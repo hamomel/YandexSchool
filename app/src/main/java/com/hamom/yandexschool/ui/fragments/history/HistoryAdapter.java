@@ -1,8 +1,11 @@
 package com.hamom.yandexschool.ui.fragments.history;
 
 import android.content.Context;
+import android.content.res.TypedArray;
+import android.graphics.Color;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.HapticFeedbackConstants;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,10 +17,12 @@ import butterknife.OnClick;
 import butterknife.OnLongClick;
 import com.hamom.yandexschool.R;
 import com.hamom.yandexschool.data.local.models.Translation;
+import com.hamom.yandexschool.mvp_contract.FavoriteContract;
 import com.hamom.yandexschool.utils.AppConfig;
 import com.hamom.yandexschool.utils.ConstantManager;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -31,6 +36,7 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHold
   private WeakReference<Context> mContextWeakReference;
   private HistoryClickListener mListener;
   private Map<String, String> mLangs;
+  private List<Translation> mSelectedItems = new ArrayList<>();
 
   public HistoryAdapter(HistoryClickListener listener) {
     mListener = listener;
@@ -39,8 +45,25 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHold
   public void init(List<Translation> history, Map<String, String> langs){
     mLangs = langs;
     this.mHistory = history;
-    if (AppConfig.DEBUG) Log.d(TAG, "init: " + history);
+    notifyDataSetChanged();
+  }
 
+  public void addSelection(Translation translation){
+    mSelectedItems.add(translation);
+    notifyDataSetChanged();
+  }
+
+  public List<Translation> getSelectedItems(){
+    return mSelectedItems;
+  }
+
+  public void deSelectItem(Translation translation) {
+    mSelectedItems.remove(translation);
+    notifyDataSetChanged();
+  }
+
+  public void setNormalMode() {
+    mSelectedItems.clear();
     notifyDataSetChanged();
   }
 
@@ -76,6 +99,23 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHold
     holder.translatedTv.setText(translated);
     holder.directionTv.setText(direction);
     holder.favoriteIv.setImageDrawable(mContextWeakReference.get().getResources().getDrawable(iconId));
+    if (mSelectedItems.contains(mHistory.get(position))){
+      setItemSelected(holder);
+    } else {
+      setItemNormal(holder);
+    }
+  }
+
+  private void setItemSelected(ViewHolder holder) {
+    int color = mContextWeakReference.get().getResources().getColor(R.color.colorPrimaryLight);
+    holder.itemView.setBackgroundColor(color);
+  }
+
+  private void setItemNormal(ViewHolder holder) {
+    TypedArray array = mContextWeakReference.get().obtainStyledAttributes(new int[]{android.R.attr.colorBackground});
+    int color = array.getColor(0, 0x000000);
+    holder.itemView.setBackgroundColor(color);
+    array.recycle();
   }
 
   @Override
@@ -93,6 +133,8 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHold
     @BindView(R.id.favorite_iv)
     ImageView favoriteIv;
 
+    View itemView;
+
     HistoryClickListener mListener;
 
     @OnClick(R.id.favorite_iv)
@@ -109,12 +151,15 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHold
 
     @OnLongClick(R.id.history_item)
     boolean onItemLongClick(View v){
+      v.setHapticFeedbackEnabled(true);
+      v.performHapticFeedback(HapticFeedbackConstants.FLAG_IGNORE_VIEW_SETTING);
       mListener.onLongClick(v, mHistory.get(getAdapterPosition()));
       return true;
     }
 
     public ViewHolder(View itemView, HistoryClickListener listener) {
       super(itemView);
+      this.itemView = itemView;
       mListener = listener;
       ButterKnife.bind(this, itemView);
     }

@@ -76,6 +76,14 @@ public class MainActivity extends AppCompatActivity {
     return super.onPrepareOptionsMenu(menu);
   }
 
+  @Override
+  public boolean onOptionsItemSelected(MenuItem item) {
+    if (item.getItemId() == android.R.id.home){
+      onBackPressed();
+    }
+    return super.onOptionsItemSelected(item);
+  }
+
   @SuppressWarnings("all")
   @Override
   public void onBackPressed() {

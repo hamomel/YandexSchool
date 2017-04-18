@@ -2,10 +2,10 @@ package com.hamom.yandexschool.ui.fragments.history;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.ActionBar;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.ViewGroup;
@@ -20,7 +20,6 @@ import com.hamom.yandexschool.mvp_contract.HistoryContract;
 import com.hamom.yandexschool.ui.activities.MainActivity;
 import com.hamom.yandexschool.ui.fragments.translation.TranslationFragment;
 import com.hamom.yandexschool.utils.App;
-import com.hamom.yandexschool.utils.AppConfig;
 import com.hamom.yandexschool.utils.ConstantManager;
 import com.hamom.yandexschool.utils.MenuItemHolder;
 import java.util.ArrayList;
@@ -39,8 +38,8 @@ public class HistoryFragment extends Fragment implements HistoryContract.View {
   @BindView(R.id.history_recycler)
   RecyclerView historyRecycler;
 
-  private List<MenuItemHolder> mMenuItems;
   private HistoryAdapter mAdapter;
+  private boolean mIsSelectionMode;
 
   @OnClick(R.id.yandex_tv)
   void onYandexClick(){
@@ -56,14 +55,13 @@ public class HistoryFragment extends Fragment implements HistoryContract.View {
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     App.getAppComponent().getHistoryComponent(new HistoryModule()).inject(this);
-    initMenuItems();
   }
 
   @Override
   public android.view.View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
     android.view.View v = inflater.inflate(R.layout.fragment_history, container, false);
     ButterKnife.bind(this, v);
-    initToolbar();
+    setNormalToolbar();
     initRecycler();
     mPresenter.takeView(this);
     return v;
@@ -75,41 +73,7 @@ public class HistoryFragment extends Fragment implements HistoryContract.View {
     super.onDestroyView();
     mPresenter.dropView();
   }
-
   //endregion
-
-  //region===================== Toolbar ==========================
-  private void initToolbar() {
-    MainActivity activity = ((MainActivity) getActivity());
-    activity.setSupportActionBar(toolbar);
-    activity.getSupportActionBar().setTitle(activity.getString(R.string.history));
-    activity.setMenuItems(mMenuItems);
-  }
-
-  private void initMenuItems() {
-    mMenuItems = new ArrayList<>();
-
-    MenuItemHolder itemClear = new MenuItemHolder();
-    itemClear.setItemTitle(getString(R.string.clear_history));
-    itemClear.setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER);
-    itemClear.setListener(new MenuItem.OnMenuItemClickListener() {
-      @Override
-      public boolean onMenuItemClick(MenuItem item) {
-        clearHistory();
-        return true;
-      }
-    });
-    mMenuItems.add(itemClear);
-  }
-
-  private void clearAppbarMenu() {
-    ((MainActivity) getActivity()).setMenuItems(null);
-  }
-  //endregion
-
-  private void clearHistory() {
-    mPresenter.cleanHistory();
-  }
 
   private void initRecycler() {
     mAdapter = new HistoryAdapter(getOnClickListener());
@@ -124,39 +88,149 @@ public class HistoryFragment extends Fragment implements HistoryContract.View {
       public void onClick(android.view.View v, Translation translation) {
         switch (v.getId()){
           case R.id.history_item:
-            clickItem(translation);
+            mPresenter.clickItem(translation);
             break;
           case R.id.favorite_iv:
-            clickFavorite(translation);
+            mPresenter.clickFavorite(translation);
             break;
         }
       }
 
       @Override
       public void onLongClick(android.view.View v, Translation translation) {
-        Toast.makeText(getContext(), "LongClick " + translation.getId(), Toast.LENGTH_SHORT).show();
+          mPresenter.onLongItemClick(translation);
       }
     };
   }
 
-  private void clickFavorite(Translation translation) {
-    mPresenter.clickFavorite(translation);
+  //region===================== Toolbar ==========================
+  @Override
+  public void setNormalToolbar() {
+    MainActivity activity = ((MainActivity) getActivity());
+    activity.setSupportActionBar(toolbar);
+    ActionBar actionBar = activity.getSupportActionBar();
+    if (actionBar != null) {
+      actionBar.setTitle(activity.getString(R.string.history));
+      actionBar.setDisplayHomeAsUpEnabled(false);
+    }
+    activity.setMenuItems(getNormalModeMenu());
   }
 
-  private void clickItem(Translation translation) {
-    mPresenter.clickItem(translation);
+  private List<MenuItemHolder> getNormalModeMenu() {
+    List<MenuItemHolder> items = new ArrayList<>();
+
+    MenuItemHolder itemClear = new MenuItemHolder();
+    itemClear.setItemTitle(getString(R.string.clear_history));
+    itemClear.setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER);
+    itemClear.setListener(new MenuItem.OnMenuItemClickListener() {
+      @Override
+      public boolean onMenuItemClick(MenuItem item) {
+        clearHistory();
+        return true;
+      }
+    });
+    items.add(itemClear);
+    return items;
   }
 
   @Override
+  public void setSelectionModeToolbar() {
+    MainActivity activity = ((MainActivity) getActivity());
+    ActionBar actionBar = activity.getSupportActionBar();
+    if (actionBar != null){
+      actionBar.setDisplayHomeAsUpEnabled(true);
+      actionBar.setTitle(String.valueOf(getSelectedItems().size()));
+    }
+    activity.setMenuItems(getSelectedModeMenu());
+  }
+
+  private List<MenuItemHolder> getSelectedModeMenu() {
+    List<MenuItemHolder> items = new ArrayList<>();
+    MenuItemHolder itemDelete = new MenuItemHolder();
+    itemDelete.setItemTitle(getString(R.string.delete));
+    itemDelete.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+    itemDelete.setItemResId(R.drawable.ic_delete_black_24dp);
+    itemDelete.setListener(new MenuItem.OnMenuItemClickListener() {
+      @Override
+      public boolean onMenuItemClick(MenuItem item) {
+        deleteSelectedItems();
+        return true;
+      }
+    });
+    items.add(itemDelete);
+    return items;
+  }
+
+  @Override
+  public void updateToolbarCounter() {
+    MainActivity activity = ((MainActivity) getActivity());
+    ActionBar actionBar = activity.getSupportActionBar();
+    if (actionBar != null) {
+      actionBar.setTitle(String.valueOf(getSelectedItems().size()));
+    }
+  }
+
+  private void clearAppbarMenu() {
+    ((MainActivity) getActivity()).setMenuItems(null);
+  }
+  //endregion
+
+  private void deleteSelectedItems() {
+    showMessage("Delete");
+  }
+
+  private void clearHistory() {
+    mPresenter.cleanHistory();
+  }
+
+  //region===================== Selection ==========================
+  @Override
+  public void setSelectionMode() {
+    mIsSelectionMode = true;
+    setSelectionModeToolbar();
+  }
+
+  @Override
+  public void setNormalMode() {
+    mIsSelectionMode = false;
+    mAdapter.setNormalMode();
+    setNormalToolbar();
+  }
+
+  @Override
+  public boolean isInSelectionMode() {
+    return mIsSelectionMode;
+  }
+
+  @Override
+  public List<Translation> getSelectedItems(){
+    return mAdapter.getSelectedItems();
+  }
+
+  @Override
+  public void addSelection(Translation translation){
+    mAdapter.addSelection(translation);
+  }
+
+  @Override
+  public void deselectItem(Translation translation) {
+    mAdapter.deSelectItem(translation);
+  }
+
+  //endregion
+
+  @Override
   public boolean onBackPressed() {
-    ((MainActivity) getActivity()).selectTranslationNavigation();
+    if (mIsSelectionMode){
+      setNormalMode();
+    } else {
+      ((MainActivity) getActivity()).selectTranslationNavigation();
+    }
     return true;
   }
 
   @Override
   public void initView(List<Translation> history, Map<String, String> langs) {
-    if (AppConfig.DEBUG) Log.d(TAG, "initView: " + history);
-
     mAdapter.init(history, langs);
   }
 
@@ -174,13 +248,12 @@ public class HistoryFragment extends Fragment implements HistoryContract.View {
   }
 
   @Override
-  public boolean isNetworkAvailable() {
-    return ((MainActivity) getActivity()).isNetworkAvailable();
-  }
-
-  @Override
   public void showMessage(String message) {
     Toast.makeText(getContext(), message, Toast.LENGTH_LONG).show();
   }
 
+  @Override
+  public boolean isNetworkAvailable() {
+    return ((MainActivity) getActivity()).isNetworkAvailable();
+  }
 }

@@ -18,6 +18,23 @@ public interface HistoryContract {
 
     void showMessage(String message);
 
+    List<Translation> getSelectedItems();
+
+    void addSelection(Translation translation);
+
+    void setNormalToolbar();
+
+    void setSelectionModeToolbar();
+
+    void updateToolbarCounter();
+
+    void setSelectionMode();
+
+    void setNormalMode();
+
+    boolean isInSelectionMode();
+
+    void deselectItem(Translation translation);
   }
 
   interface Presenter {
@@ -30,5 +47,7 @@ public interface HistoryContract {
     void clickFavorite(Translation translation);
 
     void clickItem(Translation translation);
+
+    void onLongItemClick(Translation translation);
   }
 }

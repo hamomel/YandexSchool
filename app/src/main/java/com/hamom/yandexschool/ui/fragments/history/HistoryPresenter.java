@@ -39,7 +39,35 @@ public class HistoryPresenter extends AbstractPresenter<HistoryContract.View>
 
   @Override
   public void clickItem(Translation translation) {
-    mView.setTranslationFragment(translation);
+    if (hasView()){
+      if (getView().isInSelectionMode()){
+        resolveSelection(translation);
+      } else {
+        mView.setTranslationFragment(translation);
+      }
+    }
+  }
+
+  private void resolveSelection(Translation translation) {
+    if (getView().getSelectedItems().contains(translation)){
+      getView().deselectItem(translation);
+    } else {
+      getView().addSelection(translation);
+    }
+
+    if (getView().getSelectedItems().size() < 1){
+      getView().setNormalMode();
+    } else {
+      getView().updateToolbarCounter();
+    }
+  }
+
+  @Override
+  public void onLongItemClick(Translation translation) {
+    if (hasView() && !getView().isInSelectionMode()){
+      getView().addSelection(translation);
+      getView().setSelectionMode();
+    }
   }
 
   @Override
