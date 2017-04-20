@@ -122,6 +122,10 @@ public class MainActivity extends AppCompatActivity {
           return false;
         }
       };
+
+  public void selectTranslationNavigation(){
+    navigation.setSelectedItemId(R.id.navigation_translate);
+  }
   //endregion
 
   public void setFragment(Fragment fragment, boolean addToBackStack){
@@ -129,10 +133,6 @@ public class MainActivity extends AppCompatActivity {
     transaction.replace(R.id.main_frame, fragment);
     if (addToBackStack) transaction.addToBackStack(null);
     transaction.commit();
-  }
-
-  public void selectTranslationNavigation(){
-    navigation.setSelectedItemId(R.id.navigation_translate);
   }
 
   private Fragment getCurrentFragment(){

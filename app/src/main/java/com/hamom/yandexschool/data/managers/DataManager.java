@@ -27,18 +27,20 @@ public class DataManager {
   private AppPreferencesManager mAppPreferencesManager;
 
   @Inject
-  public DataManager(RestService restService, DbManager dbManager, AppPreferencesManager preferencesManager) {
+  public DataManager(RestService restService, DbManager dbManager,
+      AppPreferencesManager preferencesManager) {
     mDbManager = dbManager;
     mRestService = restService;
     mAppPreferencesManager = preferencesManager;
-
   }
 
-  public void translate(final String text, final String lang, final ReqCallback<Translation> callback){
+  //region===================== Translation ==========================
+  public void translate(final String text, final String lang,
+      final ReqCallback<Translation> callback) {
 
     Translation translation = new Translation(text, lang);
 
-    if (mDbManager.checkAlreadyExist(translation) != null){
+    if (mDbManager.checkAlreadyExist(translation) != null) {
       translation.setTime(System.currentTimeMillis());
       mDbManager.updateTranslation(translation);
       callback.onSuccess(translation);
@@ -49,17 +51,15 @@ public class DataManager {
     call.enqueue(new Callback<TranslateRes>() {
       @Override
       public void onResponse(Call<TranslateRes> call, Response<TranslateRes> response) {
-        if (response.code() == 200){
-          Translation translation = new Translation(text,
-              response.body().getText(),
-              lang,
-              System.currentTimeMillis());
+        if (response.code() == 200) {
+          Translation translation =
+              new Translation(text, response.body().getText(), lang, System.currentTimeMillis());
 
           mDbManager.saveTranslation(translation);
 
           callback.onSuccess(translation);
         } else {
-          if (response.code() != 400){
+          if (response.code() != 400) {
             callback.onFailure(new ApiError(response.code()));
           }
         }
@@ -72,14 +72,24 @@ public class DataManager {
     });
   }
 
-  public void getLangs(String ui, final ReqCallback<Map<String, String>> callback){
+  public void updateTranslation(Translation translation) {
+    mDbManager.updateTranslation(translation);
+  }
+
+  public void deleteTranslation(Translation translation) {
+    mDbManager.deleteTranslation(translation);
+  }
+  //endregion
+
+  //region===================== Langs ==========================
+  public void getLangs(String ui, final ReqCallback<Map<String, String>> callback) {
     if (checkOutdatedLangs(callback)) return;
 
     Call<LangsRes> call = mRestService.getLangs(ui, AppConfig.API_KEY);
     call.enqueue(new Callback<LangsRes>() {
       @Override
       public void onResponse(Call<LangsRes> call, Response<LangsRes> response) {
-        if (response.code() == 200){
+        if (response.code() == 200) {
           Map<String, String> langs = response.body().getLangs();
           mDbManager.saveLangs(langs);
           mAppPreferencesManager.saveLangsUpdateTime(System.currentTimeMillis());
@@ -94,14 +104,13 @@ public class DataManager {
         callback.onFailure(t);
       }
     });
-
   }
 
   private boolean checkOutdatedLangs(ReqCallback<Map<String, String>> callback) {
     long sinceUpdate = System.currentTimeMillis() - mAppPreferencesManager.getLangsUpdateTime();
-    if (AppConfig.LANGS_UPDATE_INTERVAL > sinceUpdate){
+    if (AppConfig.LANGS_UPDATE_INTERVAL > sinceUpdate) {
       Map<String, String> langs = mDbManager.getLangs();
-      if (langs != null && !langs.isEmpty()){
+      if (langs != null && !langs.isEmpty()) {
         callback.onSuccess(langs);
         return true;
       }
@@ -109,21 +118,19 @@ public class DataManager {
     return false;
   }
 
-  public void saveLastLangs(String from, String to){
+  public void saveLastLangs(String from, String to) {
     mAppPreferencesManager.saveLastLangs(from, to);
   }
 
-  public String[] getLastLangs(){
+  public String[] getLastLangs() {
     return mAppPreferencesManager.getLastLangs();
   }
+  //endregion
 
-  public void getAllHistory(ReqCallback<List<Translation>> callback){
+  //region===================== History ==========================
+  public void getAllHistory(ReqCallback<List<Translation>> callback) {
     List<Translation> history = mDbManager.getAllHistory();
     callback.onSuccess(history);
-  }
-
-  public void updateTranslation(Translation translation) {
-    mDbManager.updateTranslation(translation);
   }
 
   public void deleteAllHistory() {
@@ -134,13 +141,11 @@ public class DataManager {
     List<Translation> favorites = mDbManager.getFavoriteHistory();
     callback.onSuccess(favorites);
   }
-
-  public void deleteTranslation(Translation translation) {
-    mDbManager.deleteTranslation(translation);
-  }
+  //endregion
 
   public interface ReqCallback<R> {
     void onSuccess(R res);
+
     void onFailure(Throwable e);
   }
 }
