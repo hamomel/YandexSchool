@@ -11,4 +11,5 @@ public class AppConfig {
   public static final long MAX_CONNECT_TIMEOUT = 5000;
   public static final long MAX_READ_TIMEOUT = 5000;
   public static final long MAX_WRITE_TIMEOUT = 5000;
+  public static final long LANGS_UPDATE_INTERVAL = 24 * 60 * 60 * 1000;
 }

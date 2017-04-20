@@ -1,6 +1,5 @@
 package com.hamom.yandexschool.data.managers;
 
-import android.util.Log;
 import com.hamom.yandexschool.data.local.database.DbManager;
 import com.hamom.yandexschool.data.network.RestService;
 import com.hamom.yandexschool.data.network.responce.LangsRes;
@@ -11,7 +10,6 @@ import com.hamom.yandexschool.utils.errors.ApiError;
 import com.hamom.yandexschool.utils.AppConfig;
 import java.util.List;
 import java.util.Map;
-import java.util.StringTokenizer;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import retrofit2.Call;
@@ -75,11 +73,7 @@ public class DataManager {
   }
 
   public void getLangs(String ui, final ReqCallback<Map<String, String>> callback){
-    Map<String, String> langs = mDbManager.getLangs();
-    if (langs != null && !langs.isEmpty()){
-      callback.onSuccess(langs);
-      return;
-    }
+    if (checkOutdatedLangs(callback)) return;
 
     Call<LangsRes> call = mRestService.getLangs(ui, AppConfig.API_KEY);
     call.enqueue(new Callback<LangsRes>() {
@@ -88,6 +82,7 @@ public class DataManager {
         if (response.code() == 200){
           Map<String, String> langs = response.body().getLangs();
           mDbManager.saveLangs(langs);
+          mAppPreferencesManager.saveLangsUpdateTime(System.currentTimeMillis());
           callback.onSuccess(langs);
         } else {
           callback.onFailure(new ApiError(response.code()));
@@ -100,6 +95,18 @@ public class DataManager {
       }
     });
 
+  }
+
+  private boolean checkOutdatedLangs(ReqCallback<Map<String, String>> callback) {
+    long sinceUpdate = System.currentTimeMillis() - mAppPreferencesManager.getLangsUpdateTime();
+    if (AppConfig.LANGS_UPDATE_INTERVAL > sinceUpdate){
+      Map<String, String> langs = mDbManager.getLangs();
+      if (langs != null && !langs.isEmpty()){
+        callback.onSuccess(langs);
+        return true;
+      }
+    }
+    return false;
   }
 
   public void saveLastLangs(String from, String to){

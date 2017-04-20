@@ -14,6 +14,7 @@ import javax.inject.Singleton;
 public class AppPreferencesManager {
   public static final String LAST_FROM_LANG_KEY = "LAST_FROM_LANG_KEY";
   public static final String LAST_TO_LANG_KEY = "LAST_TO_LANG_KEY";
+  public static final String LANGS_UPDATE_TIME_KEY = "LANGS_UPDATE_TIME_KEY";
 
   SharedPreferences mSharedPreferences;
 
@@ -34,5 +35,15 @@ public class AppPreferencesManager {
     langs[0] = mSharedPreferences.getString(LAST_FROM_LANG_KEY, "");
     langs[1] = mSharedPreferences.getString(LAST_TO_LANG_KEY, "");
     return langs;
+  }
+
+  public void saveLangsUpdateTime(long l) {
+    SharedPreferences.Editor editor = mSharedPreferences.edit();
+    editor.putLong(LANGS_UPDATE_TIME_KEY, l);
+    editor.apply();
+  }
+
+  public long getLangsUpdateTime(){
+    return mSharedPreferences.getLong(LANGS_UPDATE_TIME_KEY, 0);
   }
 }
