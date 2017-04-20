@@ -8,7 +8,7 @@
   <string name="history">История</string>
   <string name="no_internet_connection">Нет подключения к интернет. Попробуйте позже.</string>
   <string name="clear_history">Очистить историю</string>
-  <string name="press_one_more_time_to_exit">Нажмите еще раз, чтобы выйти из приложения</string>
+  <string name="press_one_more_time_to_exit">Нажмите еще раз, чтобы выйти</string>
   <string name="yandex_url">http://translate.yandex.ru/</string>
   <string name="delete">Удалить</string>
 </resources>

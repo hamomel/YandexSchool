@@ -7,6 +7,7 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.ViewGroup;
@@ -21,6 +22,7 @@ import com.hamom.yandexschool.mvp_contract.HistoryContract;
 import com.hamom.yandexschool.ui.activities.MainActivity;
 import com.hamom.yandexschool.ui.fragments.translation.TranslationFragment;
 import com.hamom.yandexschool.utils.App;
+import com.hamom.yandexschool.utils.AppConfig;
 import com.hamom.yandexschool.utils.ConstantManager;
 import com.hamom.yandexschool.utils.MenuItemHolder;
 import java.util.ArrayList;
@@ -56,7 +58,9 @@ public class HistoryFragment extends Fragment implements HistoryContract.View {
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setRetainInstance(true);
-    App.getAppComponent().getHistoryComponent(new HistoryModule()).inject(this);
+    if (mPresenter == null){
+      App.getAppComponent().getHistoryComponent(new HistoryModule()).inject(this);
+    }
   }
 
   @Override
@@ -200,6 +204,8 @@ public class HistoryFragment extends Fragment implements HistoryContract.View {
   //endregion
 
   private void deleteMenuClick() {
+    if (AppConfig.DEBUG) Log.d(TAG, "deleteMenuClick: ");
+
     mPresenter.deleteMenuClick();
   }
 

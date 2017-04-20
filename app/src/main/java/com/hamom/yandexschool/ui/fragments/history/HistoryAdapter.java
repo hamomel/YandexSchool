@@ -3,6 +3,7 @@ package com.hamom.yandexschool.ui.fragments.history;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Color;
+import android.support.constraint.ConstraintLayout;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.HapticFeedbackConstants;
@@ -117,13 +118,13 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHold
 
   private void setItemSelected(ViewHolder holder) {
     int color = mContextWeakReference.get().getResources().getColor(R.color.colorPrimaryLight);
-    holder.itemView.setBackgroundColor(color);
+    holder.historyItem.setBackgroundColor(color);
   }
 
   private void setItemNormal(ViewHolder holder) {
     TypedArray array = mContextWeakReference.get().obtainStyledAttributes(new int[]{android.R.attr.colorBackground});
     int color = array.getColor(0, 0x000000);
-    holder.itemView.setBackgroundColor(color);
+    holder.historyItem.setBackgroundColor(color);
     array.recycle();
   }
 
@@ -141,8 +142,8 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHold
     TextView directionTv;
     @BindView(R.id.favorite_iv)
     ImageView favoriteIv;
-
-    View itemView;
+    @BindView(R.id.history_item)
+    ConstraintLayout historyItem;
 
     HistoryClickListener mListener;
 
@@ -168,7 +169,6 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHold
 
     public ViewHolder(View itemView, HistoryClickListener listener) {
       super(itemView);
-      this.itemView = itemView;
       mListener = listener;
       ButterKnife.bind(this, itemView);
     }
