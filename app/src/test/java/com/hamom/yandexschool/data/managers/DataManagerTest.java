@@ -119,7 +119,7 @@ public class DataManagerTest {
   public void translate_ALREADY_EXIST() throws Exception {
     final CountDownLatch lock = new CountDownLatch(1);
 
-    when(mDbManager.checkAlreadyExist(any(Translation.class))).thenReturn(new Translation("взгляд", "en"));
+    when(mDbManager.getTranslationFromDb(any(Translation.class))).thenReturn(new Translation("взгляд", "en"));
     mDataManager.translate("взгляд", "en", new DataManager.ReqCallback<Translation>() {
       @Override
       public void onSuccess(Translation res) {

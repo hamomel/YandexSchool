@@ -18,7 +18,7 @@ public interface FavoriteContract {
 
   }
 
-  interface Presenter{
+  interface Presenter {
     void takeView(View view);
 
     void dropView();

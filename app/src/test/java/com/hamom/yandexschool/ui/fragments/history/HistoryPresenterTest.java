@@ -14,7 +14,9 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.atLeast;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -78,4 +80,16 @@ public class HistoryPresenterTest {
     verify(mockDataManager, times(1)).deleteAllHistory();
   }
 
+  @Test
+  public void deleteMenuClickTest() throws Exception {
+    List<Translation> items = new ArrayList<>();
+    items.add(new Translation("anyString", "anyString"));
+    when(mockView.getSelectedItems()).thenReturn(items);
+
+    mPresenter.takeView(mockView);
+    mPresenter.deleteMenuClick();
+
+    verify(mockDataManager, atLeast(1)).deleteTranslation(any(Translation.class));
+    verify(mockView, times(1)).deleteSelectedItems();
+  }
 }

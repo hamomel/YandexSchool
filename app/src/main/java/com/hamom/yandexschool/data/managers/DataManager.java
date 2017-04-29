@@ -40,7 +40,7 @@ public class DataManager {
 
     Translation translation = new Translation(text, lang);
 
-    if (mDbManager.checkAlreadyExist(translation) != null) {
+    if (mDbManager.getTranslationFromDb(translation) != null) {
       translation.setTime(System.currentTimeMillis());
       mDbManager.updateTranslation(translation);
       callback.onSuccess(translation);

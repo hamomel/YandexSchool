@@ -61,10 +61,10 @@ public class DbManager {
   }
 
   /**
-   * check if {@link Translation} exist,  if so then update its {@link Translation#time}
+   * check if {@link Translation} exist, if so update and return it
    */
-  public Translation checkAlreadyExist(Translation translation) {
-    if (AppConfig.DEBUG) Log.d(TAG, "checkAlreadyExist: ");
+  public Translation getTranslationFromDb(Translation translation) {
+    if (AppConfig.DEBUG) Log.d(TAG, "getTranslationFromDb: ");
 
     SQLiteDatabase readableDatabase = mDbHelper.getReadableDatabase();
 
