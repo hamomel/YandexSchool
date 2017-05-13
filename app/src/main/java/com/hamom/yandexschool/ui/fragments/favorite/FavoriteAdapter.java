@@ -35,6 +35,12 @@ public class FavoriteAdapter extends RecyclerView.Adapter<FavoriteAdapter.ViewHo
 
   public FavoriteAdapter(FavoriteClickListener listener) {
     mListener = listener;
+    setHasStableIds(true);
+  }
+
+  @Override
+  public long getItemId(int position) {
+    return mHistory.get(position).getId();
   }
 
   public void init(List<Translation> history, Map<String, String> langs){

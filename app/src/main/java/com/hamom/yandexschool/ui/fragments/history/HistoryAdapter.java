@@ -41,6 +41,12 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHold
 
   public HistoryAdapter(HistoryClickListener listener) {
     mListener = listener;
+    setHasStableIds(true);
+  }
+
+  @Override
+  public long getItemId(int position) {
+    return mHistory.get(position).getId();
   }
 
   public void init(List<Translation> history, Map<String, String> langs){
