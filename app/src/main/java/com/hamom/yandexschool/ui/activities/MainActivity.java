@@ -145,6 +145,9 @@ public class MainActivity extends AppCompatActivity {
     return networkInfo != null && networkInfo.isConnectedOrConnecting();
   }
 
+  /**
+   * open Yandex official site
+   */
   public void openYandexTranslate(){
     String uri = getString(R.string.yandex_url);
     Intent intent = new Intent(Intent.ACTION_VIEW);

@@ -46,7 +46,7 @@ public class HistoryFragment extends Fragment implements HistoryContract.View {
 
   @OnClick(R.id.yandex_tv)
   void onYandexClick(){
-    ((MainActivity) getActivity()).openYandexTranslate();
+    getMainActivity().openYandexTranslate();
   }
 
   public HistoryFragment() {
@@ -119,7 +119,7 @@ public class HistoryFragment extends Fragment implements HistoryContract.View {
   //region===================== Toolbar ==========================
   @Override
   public void setNormalToolbar() {
-    MainActivity activity = ((MainActivity) getActivity());
+    MainActivity activity = (getMainActivity());
     activity.setSupportActionBar(toolbar);
     ActionBar actionBar = activity.getSupportActionBar();
     if (actionBar != null) {
@@ -156,7 +156,7 @@ public class HistoryFragment extends Fragment implements HistoryContract.View {
 
   @Override
   public void setSelectionModeToolbar() {
-    MainActivity activity = ((MainActivity) getActivity());
+    MainActivity activity = (getMainActivity());
     activity.setSupportActionBar(toolbar);
     ActionBar actionBar = activity.getSupportActionBar();
     if (actionBar != null){
@@ -191,7 +191,7 @@ public class HistoryFragment extends Fragment implements HistoryContract.View {
 
   @Override
   public void updateToolbarCounter() {
-    MainActivity activity = ((MainActivity) getActivity());
+    MainActivity activity = getMainActivity();
     ActionBar actionBar = activity.getSupportActionBar();
     if (actionBar != null) {
       actionBar.setTitle(String.valueOf(getSelectedItems().size()));
@@ -199,7 +199,7 @@ public class HistoryFragment extends Fragment implements HistoryContract.View {
   }
 
   private void clearAppbarMenu() {
-    ((MainActivity) getActivity()).setMenuItems(null);
+    getMainActivity().setMenuItems(null);
   }
   //endregion
 
@@ -260,7 +260,7 @@ public class HistoryFragment extends Fragment implements HistoryContract.View {
     if (mIsSelectionMode){
       setNormalMode();
     } else {
-      ((MainActivity) getActivity()).selectTranslationNavigation();
+      getMainActivity().selectTranslationNavigation();
     }
     return true;
   }
@@ -272,7 +272,7 @@ public class HistoryFragment extends Fragment implements HistoryContract.View {
 
   @Override
   public void setTranslationFragment(Translation translation) {
-    MainActivity activity = ((MainActivity) getActivity());
+    MainActivity activity = getMainActivity();
     TranslationFragment fragment = TranslationFragment.newInstance(translation);
     activity.selectTranslationNavigation();
     activity.setFragment(fragment, false);
@@ -290,6 +290,10 @@ public class HistoryFragment extends Fragment implements HistoryContract.View {
 
   @Override
   public boolean isNetworkAvailable() {
-    return ((MainActivity) getActivity()).isNetworkAvailable();
+    return getMainActivity().isNetworkAvailable();
+  }
+
+  private MainActivity getMainActivity() {
+    return (MainActivity) getActivity();
   }
 }

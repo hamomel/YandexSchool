@@ -153,6 +153,12 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHold
 
     HistoryClickListener mListener;
 
+    public ViewHolder(View itemView, HistoryClickListener listener) {
+      super(itemView);
+      mListener = listener;
+      ButterKnife.bind(this, itemView);
+    }
+
     @OnClick(R.id.favorite_iv)
     void onFavoriteClick(View v){
       mHistory.get(getAdapterPosition()).changeFavorite();
@@ -171,12 +177,6 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHold
       v.performHapticFeedback(HapticFeedbackConstants.FLAG_IGNORE_VIEW_SETTING);
       mListener.onLongClick(v, mHistory.get(getAdapterPosition()));
       return true;
-    }
-
-    public ViewHolder(View itemView, HistoryClickListener listener) {
-      super(itemView);
-      mListener = listener;
-      ButterKnife.bind(this, itemView);
     }
   }
 
