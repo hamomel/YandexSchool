@@ -59,6 +59,28 @@ public class FavoritePresenter extends AbstractPresenter<FavoriteContract.View>
     return false;
   }
 
+  /**
+   * make callback to receive map of languages
+   */
+  private DataManager.ReqCallback<Map<String, String>> getLangsCallback() {
+    if (AppConfig.DEBUG) Log.d(TAG, "getLangsCallback: ");
+
+    return new DataManager.ReqCallback<Map<String, String>>() {
+      @Override
+      public void onSuccess(Map<String, String> res) {
+        mLangs = res;
+        getFavoriteHistory();
+      }
+
+      @Override
+      public void onFailure(Throwable e) {
+        if (hasView()) {
+          getView().showMessage(e.getMessage());
+        }
+      }
+    };
+  }
+
   private void getFavoriteHistory(){
     mDataManager.getFavoriteHistory(getHistoryCallback());
   }
@@ -75,28 +97,6 @@ public class FavoritePresenter extends AbstractPresenter<FavoriteContract.View>
       @Override
       public void onFailure(Throwable e) {
 
-      }
-    };
-  }
-
-  /**
-   * make callback to receive map of languages
-   */
-  private DataManager.ReqCallback<Map<String, String>> getLangsCallback() {
-    if (AppConfig.DEBUG) Log.d(TAG, "getLangsCallback: ");
-
-    return new DataManager.ReqCallback<Map<String, String>>() {
-      @Override
-      public void onSuccess(Map<String, String> res) {
-          mLangs = res;
-          getFavoriteHistory();
-      }
-
-      @Override
-      public void onFailure(Throwable e) {
-        if (hasView()) {
-          getView().showMessage(e.getMessage());
-        }
       }
     };
   }

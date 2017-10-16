@@ -138,7 +138,6 @@ public class FavoriteFragment extends Fragment implements FavoriteContract.View{
   @Override
   public void initView(List<Translation> history, Map<String, String> langs) {
     if (AppConfig.DEBUG) Log.d(TAG, "initView: " + history);
-
     mAdapter.init(history, langs);
   }
 

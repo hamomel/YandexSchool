@@ -46,7 +46,7 @@ public class FavoriteAdapter extends RecyclerView.Adapter<FavoriteAdapter.ViewHo
   public void init(List<Translation> history, Map<String, String> langs){
     mLangs = langs;
     this.mHistory = history;
-    if (AppConfig.DEBUG) Log.d(TAG, "init: " + history);
+    if (AppConfig.DEBUG) Log.d(TAG, "init: " + history + " " + Thread.currentThread().getName());
 
     notifyDataSetChanged();
   }

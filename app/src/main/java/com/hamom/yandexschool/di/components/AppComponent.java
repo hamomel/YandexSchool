@@ -16,6 +16,5 @@ import javax.inject.Singleton;
 public interface AppComponent {
   TranslationComponent getTranslationComponent(TranslationModule translationModule);
   HistoryComponent getHistoryComponent(HistoryModule historyModule);
-
   FavoriteComponent getFavoriteComponent(FavoriteModule favoriteModule);
 }

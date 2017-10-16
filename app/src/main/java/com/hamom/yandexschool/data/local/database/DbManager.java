@@ -64,7 +64,7 @@ public class DbManager {
    * check if {@link Translation} exist, if so update and return it
    */
   public Translation getTranslationFromDb(Translation translation) {
-    if (AppConfig.DEBUG) Log.d(TAG, "getTranslationFromDb: ");
+    if (AppConfig.DEBUG) Log.d(TAG, "getTranslationFromDb: " + Thread.currentThread().getName());
 
     SQLiteDatabase readableDatabase = mDbHelper.getReadableDatabase();
 

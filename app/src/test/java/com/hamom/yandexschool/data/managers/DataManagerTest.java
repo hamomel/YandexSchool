@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.TimeUnit;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
@@ -31,7 +32,6 @@ import static org.mockito.Mockito.when;
  * Created by hamom on 27.03.17.
  */
 public class DataManagerTest {
-
 
   private MockWebServer mMockWebServer;
   private DataManager mDataManager;
@@ -84,7 +84,7 @@ public class DataManagerTest {
       }
     });
 
-    lock.await(1000, TimeUnit.MILLISECONDS);
+    lock.await(500, TimeUnit.MILLISECONDS);
     assertNotNull(mTransRes);
     assertEquals("mock", mTransRes.getTranslations().get(0));
     assertNull(mThrowable);
@@ -110,7 +110,7 @@ public class DataManagerTest {
       }
     });
 
-    lock.await(1000, TimeUnit.MILLISECONDS);
+    lock.await(500, TimeUnit.MILLISECONDS);
     assertEquals("Не возможно получить ответ сервера. Код ошибки: 401", mThrowable.getMessage());
     assertNull(mTransRes);
   }
@@ -132,7 +132,7 @@ public class DataManagerTest {
       }
     });
 
-    lock.await(1000, TimeUnit.MILLISECONDS);
+    lock.await(500, TimeUnit.MILLISECONDS);
     assertEquals("взгляд", mTransRes.getWord());
   }
 
@@ -158,7 +158,7 @@ public class DataManagerTest {
       }
     });
 
-    lock.await(2000, TimeUnit.MILLISECONDS);
+    lock.await(500, TimeUnit.MILLISECONDS);
 
     assertNotEquals(0, responce.size());
     assertEquals(history.get(0), responce.get(0));
@@ -186,7 +186,7 @@ public class DataManagerTest {
       }
     });
 
-    lock.await(2000, TimeUnit.MILLISECONDS);
+    lock.await(500, TimeUnit.MILLISECONDS);
     assertEquals("Русский", mLangsRes.get("ru"));
     assertNull(mThrowable);
   }
@@ -210,20 +210,23 @@ public class DataManagerTest {
       }
     });
 
-    lock.await(2000, TimeUnit.MILLISECONDS);
+    lock.await(500, TimeUnit.MILLISECONDS);
     assertEquals("Не возможно получить ответ сервера. Код ошибки: 401", mThrowable.getMessage());
   }
 
   @Test
   public void getLangs_FROM_DB() throws Exception {
+    final CountDownLatch lock = new CountDownLatch(1);
     final Map<String, String> langs = new HashMap<>();
     langs.put("ru", "Русский");
+    when(mAppPreferencesManager.getLangsUpdateTime()).thenReturn(System.currentTimeMillis());
     when(mDbManager.getLangs()).thenReturn(langs);
 
     mDataManager.getLangs("ru", new DataManager.ReqCallback<Map<String, String>>() {
       @Override
       public void onSuccess(Map<String, String> res) {
         mLangsRes = res;
+        lock.countDown();
       }
 
       @Override
@@ -232,6 +235,7 @@ public class DataManagerTest {
       }
     });
 
+    lock.await(500, TimeUnit.MILLISECONDS);
     assertEquals(langs, mLangsRes);
     assertNull(mThrowable);
   }
@@ -255,12 +259,23 @@ public class DataManagerTest {
   public void updateTranslation() throws Exception {
     Translation translation = new Translation("anyString", "anyString");
     mDataManager.updateTranslation(translation);
+    Thread.sleep(500);
     verify(mDbManager, times(1)).updateTranslation(translation);
   }
 
   @Test
+  public void deleteTranslation() throws Exception {
+    Translation translation = new Translation("anyString", "anyString");
+    mDataManager.deleteTranslation(translation);
+    Thread.sleep(500);
+    verify(mDbManager, times(1)).deleteTranslation(translation);
+  }
+
+
+  @Test
   public void deleteAllHistory() throws Exception {
     mDataManager.deleteAllHistory();
+    Thread.sleep(500);
     verify(mDbManager, times(1)).deleteAllTranslations();
   }
 
@@ -286,7 +301,7 @@ public class DataManagerTest {
       }
     });
 
-    lock.await(2000, TimeUnit.MILLISECONDS);
+    lock.await(500, TimeUnit.MILLISECONDS);
 
     assertNotEquals(0, responce.size());
     assertEquals(history.get(0), responce.get(0));
