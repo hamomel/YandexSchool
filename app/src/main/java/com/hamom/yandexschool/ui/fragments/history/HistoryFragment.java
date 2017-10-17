@@ -45,7 +45,7 @@ public class HistoryFragment extends Fragment implements HistoryContract.View {
   private boolean mIsSelectionMode;
 
   @OnClick(R.id.yandex_tv)
-  void onYandexClick(){
+  void onYandexClick() {
     getMainActivity().openYandexTranslate();
   }
 
@@ -58,18 +58,19 @@ public class HistoryFragment extends Fragment implements HistoryContract.View {
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setRetainInstance(true);
-    if (mPresenter == null){
+    if (mPresenter == null) {
       App.getAppComponent().getHistoryComponent(new HistoryModule()).inject(this);
     }
   }
 
   @Override
-  public android.view.View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+  public android.view.View onCreateView(LayoutInflater inflater, ViewGroup container,
+      Bundle savedInstanceState) {
     android.view.View v = inflater.inflate(R.layout.fragment_history, container, false);
     ButterKnife.bind(this, v);
     initRecycler();
     mPresenter.takeView(this);
-    if (mIsSelectionMode){
+    if (mIsSelectionMode) {
       setSelectionModeToolbar();
     } else {
       setNormalToolbar();
@@ -86,7 +87,7 @@ public class HistoryFragment extends Fragment implements HistoryContract.View {
   //endregion
 
   private void initRecycler() {
-    if (mAdapter == null){
+    if (mAdapter == null) {
       mAdapter = new HistoryAdapter(getOnClickListener());
     }
     LinearLayoutManager manager = new LinearLayoutManager(getActivity());
@@ -99,7 +100,7 @@ public class HistoryFragment extends Fragment implements HistoryContract.View {
     return new HistoryAdapter.HistoryClickListener() {
       @Override
       public void onClick(android.view.View v, Translation translation) {
-        switch (v.getId()){
+        switch (v.getId()) {
           case R.id.history_item:
             mPresenter.clickItem(translation);
             break;
@@ -111,7 +112,7 @@ public class HistoryFragment extends Fragment implements HistoryContract.View {
 
       @Override
       public void onLongClick(android.view.View v, Translation translation) {
-          mPresenter.onLongItemClick(translation);
+        mPresenter.onLongItemClick(translation);
       }
     };
   }
@@ -132,9 +133,9 @@ public class HistoryFragment extends Fragment implements HistoryContract.View {
 
   private void setNormalScrollFlags() {
     AppBarLayout.LayoutParams params = ((AppBarLayout.LayoutParams) toolbar.getLayoutParams());
-    params.setScrollFlags(AppBarLayout.LayoutParams.SCROLL_FLAG_SCROLL |
-        AppBarLayout.LayoutParams.SCROLL_FLAG_ENTER_ALWAYS |
-    AppBarLayout.LayoutParams.SCROLL_FLAG_SNAP);
+    params.setScrollFlags(AppBarLayout.LayoutParams.SCROLL_FLAG_SCROLL
+        | AppBarLayout.LayoutParams.SCROLL_FLAG_ENTER_ALWAYS
+        | AppBarLayout.LayoutParams.SCROLL_FLAG_SNAP);
   }
 
   private List<MenuItemHolder> getNormalModeMenu() {
@@ -159,7 +160,7 @@ public class HistoryFragment extends Fragment implements HistoryContract.View {
     MainActivity activity = (getMainActivity());
     activity.setSupportActionBar(toolbar);
     ActionBar actionBar = activity.getSupportActionBar();
-    if (actionBar != null){
+    if (actionBar != null) {
       actionBar.setDisplayHomeAsUpEnabled(true);
       actionBar.setTitle(String.valueOf(getSelectedItems().size()));
     }
@@ -233,12 +234,12 @@ public class HistoryFragment extends Fragment implements HistoryContract.View {
   }
 
   @Override
-  public List<Translation> getSelectedItems(){
+  public List<Translation> getSelectedItems() {
     return mAdapter.getSelectedItems();
   }
 
   @Override
-  public void addSelection(Translation translation){
+  public void addSelection(Translation translation) {
     mAdapter.addSelection(translation);
   }
 
@@ -257,7 +258,7 @@ public class HistoryFragment extends Fragment implements HistoryContract.View {
 
   @Override
   public boolean onBackPressed() {
-    if (mIsSelectionMode){
+    if (mIsSelectionMode) {
       setNormalMode();
     } else {
       getMainActivity().selectTranslationNavigation();
@@ -280,7 +281,8 @@ public class HistoryFragment extends Fragment implements HistoryContract.View {
 
   @Override
   public void showNoNetworkMessage() {
-    Toast.makeText(getContext(), getString(R.string.no_internet_connection), Toast.LENGTH_SHORT).show();
+    Toast.makeText(getContext(), getString(R.string.no_internet_connection), Toast.LENGTH_SHORT)
+        .show();
   }
 
   @Override

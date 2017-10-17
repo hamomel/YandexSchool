@@ -129,8 +129,14 @@ public class MainActivity extends AppCompatActivity {
   //endregion
 
   public void setFragment(Fragment fragment, boolean addToBackStack){
+    Fragment oldFragment = getSupportFragmentManager().findFragmentByTag(fragment.getClass().getName());
+    if (oldFragment != null) {
+      Bundle args = fragment.getArguments();
+      oldFragment.setArguments(args);
+      fragment = oldFragment;
+    }
     FragmentTransaction transaction = mFragmentManager.beginTransaction();
-    transaction.replace(R.id.main_frame, fragment);
+    transaction.replace(R.id.main_frame, fragment, fragment.getClass().getName());
     if (addToBackStack) transaction.addToBackStack(null);
     transaction.commit();
   }
