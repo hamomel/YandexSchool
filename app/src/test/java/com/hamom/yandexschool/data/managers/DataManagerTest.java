@@ -283,15 +283,16 @@ public class DataManagerTest {
   public void getFavoriteHistory() throws Exception {
     final List<Translation> history = new ArrayList<>();
     history.add(new Translation("anyString", "anyString"));
-    final List<Translation> responce = new ArrayList<>();
+    final List<Translation> response = new ArrayList<>();
     final CountDownLatch lock = new CountDownLatch(1);
 
-    when(mDbManager.getAllHistory()).thenReturn(history);
+    when(mDbManager.getFavoriteHistory()).thenReturn(history);
 
-    mDataManager.getAllHistory(new DataManager.ReqCallback<List<Translation>>() {
+    mDataManager.getFavoriteHistory(new DataManager.ReqCallback<List<Translation>>() {
       @Override
       public void onSuccess(List<Translation> res) {
-        responce.addAll(res);
+        System.out.println("response :" + res.size());
+        response.addAll(res);
         lock.countDown();
       }
 
@@ -303,8 +304,8 @@ public class DataManagerTest {
 
     lock.await(500, TimeUnit.MILLISECONDS);
 
-    assertNotEquals(0, responce.size());
-    assertEquals(history.get(0), responce.get(0));
+    assertNotEquals(0, response.size());
+    assertEquals(history.get(0), response.get(0));
     assertNull(mThrowable);
   }
 }

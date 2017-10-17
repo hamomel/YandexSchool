@@ -1,5 +1,8 @@
 package com.hamom.yandexschool.data.managers;
 
+import android.os.AsyncTask;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.MenuItem;
 import com.hamom.yandexschool.data.local.database.DbManager;
 import com.hamom.yandexschool.data.local.models.Translation;
@@ -9,6 +12,7 @@ import com.hamom.yandexschool.data.network.responce.TranslateRes;
 import com.hamom.yandexschool.utils.AppConfig;
 import com.hamom.yandexschool.utils.ConstantManager;
 import com.hamom.yandexschool.utils.errors.ApiError;
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
@@ -43,42 +47,44 @@ public class DataManager {
   public void translate(final String text, final String lang,
       final ReqCallback<Translation> callback) {
 
-    mExecutor.submit(new Runnable() {
-      @Override
-      public void run() {
-        Translation translation = new Translation(text, lang);
+    AsyncTask<Void, Void, Void> asyncTask = new AsyncTask<Void, Void, Void>() {
+      Translation translation = new Translation(text, lang);
+      Throwable error;
 
+      @Override
+      protected Void doInBackground(Void... params) {
         if (mDbManager.getTranslationFromDb(translation) != null) {
           translation.setTime(System.currentTimeMillis());
           mDbManager.updateTranslation(translation);
-          callback.onSuccess(translation);
-          return;
-        }
-
-        Call<TranslateRes> call = mRestService.translate(AppConfig.API_KEY, text, lang);
-        call.enqueue(new Callback<TranslateRes>() {
-          @Override
-          public void onResponse(Call<TranslateRes> call, Response<TranslateRes> response) {
+        } else {
+          Call<TranslateRes> call = mRestService.translate(AppConfig.API_KEY, text, lang);
+          try {
+            Response<TranslateRes> response = call.execute();
             if (response.code() == 200) {
-              Translation translation =
-                  new Translation(text, response.body().getText(), lang, System.currentTimeMillis());
-
+              translation = new Translation(text, response.body().getText(), lang,
+                  System.currentTimeMillis());
               mDbManager.saveTranslation(translation);
-              callback.onSuccess(translation);
             } else {
-              if (response.code() != 400) {
-                callback.onFailure(new ApiError(response.code()));
-              }
+              error = new ApiError(response.code());
             }
+          } catch (IOException e) {
+            error = e;
           }
-
-          @Override
-          public void onFailure(Call<TranslateRes> call, Throwable t) {
-            callback.onFailure(t);
-          }
-        });
+        }
+        return null;
       }
-    });
+
+      @Override
+      protected void onPostExecute(Void aVoid) {
+        if (error == null) {
+          callback.onSuccess(translation);
+        } else {
+          callback.onFailure(error);
+        }
+      }
+    };
+
+    asyncTask.execute();
   }
 
   public void updateTranslation(final Translation translation) {
@@ -103,44 +109,47 @@ public class DataManager {
   //region===================== Langs ==========================
   public void getLangs(final String uiLanguage, final ReqCallback<Map<String, String>> callback) {
 
-    mExecutor.submit(new Runnable() {
+    AsyncTask<Void, Void, Void> asyncTask = new AsyncTask<Void, Void, Void>() {
+      Throwable error;
+      Map<String, String> result;
+
       @Override
-      public void run() {
-        if (checkLangsOutdated(callback)) return;
+      protected Void doInBackground(Void... params) {
+        if ((result = checkLangsOutdated()) != null) return null;
 
         Call<LangsRes> call = mRestService.getLangs(uiLanguage, AppConfig.API_KEY);
-        call.enqueue(new Callback<LangsRes>() {
-          @Override
-          public void onResponse(Call<LangsRes> call, Response<LangsRes> response) {
-            if (response.code() == 200) {
-              Map<String, String> langs = response.body().getLangs();
-              mDbManager.saveLangs(langs);
-              mAppPreferencesManager.saveLangsUpdateTime(System.currentTimeMillis());
-              callback.onSuccess(langs);
-            } else {
-              callback.onFailure(new ApiError(response.code()));
-            }
+        try {
+          Response<LangsRes> response = call.execute();
+          if (response.code() == 200) {
+            result = response.body().getLangs();
+          } else {
+            error = new ApiError(response.code());
           }
-
-          @Override
-          public void onFailure(Call<LangsRes> call, Throwable t) {
-            callback.onFailure(t);
-          }
-        });
+        } catch (IOException e) {
+          error = e;
+        }
+        return null;
       }
-    });
+
+      @Override
+      protected void onPostExecute(Void aVoid) {
+        if (error != null) {
+          callback.onFailure(error);
+        } else {
+          callback.onSuccess(result);
+        }
+      }
+    };
+
+    asyncTask.execute();
   }
 
-  private boolean checkLangsOutdated(ReqCallback<Map<String, String>> callback) {
+  private Map<String, String> checkLangsOutdated() {
     long sinceUpdate = System.currentTimeMillis() - mAppPreferencesManager.getLangsUpdateTime();
     if (AppConfig.LANGS_UPDATE_INTERVAL > sinceUpdate) {
-      Map<String, String> langs = mDbManager.getLangs();
-      if (langs != null && !langs.isEmpty()) {
-        callback.onSuccess(langs);
-        return true;
-      }
+      return mDbManager.getLangs();
     }
-    return false;
+    return null;
   }
 
   public void saveLastLangs(String from, String to) {
@@ -154,14 +163,20 @@ public class DataManager {
 
   //region===================== History ==========================
   public void getAllHistory(final ReqCallback<List<Translation>> callback) {
-    mExecutor.submit(new Runnable() {
-      @Override
-      public void run() {
-        List<Translation> history = mDbManager.getAllHistory();
-        callback.onSuccess(history);
-      }
-    });
+    AsyncTask<Void, Void, List<Translation>> asyncTask =
+        new AsyncTask<Void, Void, List<Translation>>() {
+          @Override
+          protected List<Translation> doInBackground(Void... params) {
+            return mDbManager.getAllHistory();
+          }
 
+          @Override
+          protected void onPostExecute(List<Translation> translations) {
+            callback.onSuccess(translations);
+          }
+        };
+
+    asyncTask.execute();
   }
 
   public void deleteAllHistory() {
@@ -174,13 +189,21 @@ public class DataManager {
   }
 
   public void getFavoriteHistory(final ReqCallback<List<Translation>> callback) {
-    mExecutor.submit(new Runnable() {
-      @Override
-      public void run() {
-        List<Translation> favorites = mDbManager.getFavoriteHistory();
-        callback.onSuccess(favorites);
-      }
-    });
+
+    AsyncTask<Void, Void, List<Translation>> asyncTask =
+        new AsyncTask<Void, Void, List<Translation>>() {
+          @Override
+          protected List<Translation> doInBackground(Void... params) {
+            return mDbManager.getFavoriteHistory();
+          }
+
+          @Override
+          protected void onPostExecute(List<Translation> translations) {
+            callback.onSuccess(translations);
+          }
+        };
+
+    asyncTask.execute();
   }
   //endregion
 
@@ -189,6 +212,4 @@ public class DataManager {
 
     void onFailure(Throwable e);
   }
-
-
 }
