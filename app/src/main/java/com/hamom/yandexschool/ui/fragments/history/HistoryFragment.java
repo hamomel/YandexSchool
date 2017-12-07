@@ -46,7 +46,7 @@ public class HistoryFragment extends Fragment implements HistoryContract.View {
 
   @OnClick(R.id.yandex_tv)
   void onYandexClick() {
-    (getMainActivity()).openYandexTranslate();
+    getMainActivity().openYandexTranslate();
   }
 
   public HistoryFragment() {
@@ -192,7 +192,7 @@ public class HistoryFragment extends Fragment implements HistoryContract.View {
 
   @Override
   public void updateToolbarCounter() {
-    MainActivity activity = (getMainActivity());
+    MainActivity activity = getMainActivity();
     ActionBar actionBar = activity.getSupportActionBar();
     if (actionBar != null) {
       actionBar.setTitle(String.valueOf(getSelectedItems().size()));
@@ -200,7 +200,7 @@ public class HistoryFragment extends Fragment implements HistoryContract.View {
   }
 
   private void clearAppbarMenu() {
-    (getMainActivity()).setMenuItems(null);
+    getMainActivity().setMenuItems(null);
   }
   //endregion
 
@@ -261,7 +261,7 @@ public class HistoryFragment extends Fragment implements HistoryContract.View {
     if (mIsSelectionMode) {
       setNormalMode();
     } else {
-      (getMainActivity()).selectTranslationNavigation();
+      getMainActivity().selectTranslationNavigation();
     }
     return true;
   }
@@ -273,7 +273,7 @@ public class HistoryFragment extends Fragment implements HistoryContract.View {
 
   @Override
   public void setTranslationFragment(Translation translation) {
-    MainActivity activity = (getMainActivity());
+    MainActivity activity = getMainActivity();
     TranslationFragment fragment = TranslationFragment.newInstance(translation);
     activity.selectTranslationNavigation();
     activity.setFragment(fragment, false);

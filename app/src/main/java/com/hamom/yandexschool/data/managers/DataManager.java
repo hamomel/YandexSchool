@@ -37,6 +37,7 @@ public class DataManager {
   private Handler mWorkerHandler;
   private Handler mUIHandler;
 
+
   @Inject
   public DataManager(RestService restService, DbManager dbManager,
       AppPreferencesManager preferencesManager) {
