@@ -34,6 +34,7 @@ public class DataManager {
   private AppPreferencesManager mAppPreferencesManager;
   private ExecutorService mExecutor;
 
+
   @Inject
   public DataManager(RestService restService, DbManager dbManager,
       AppPreferencesManager preferencesManager) {

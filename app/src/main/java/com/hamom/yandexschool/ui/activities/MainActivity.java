@@ -158,6 +158,7 @@ public class MainActivity extends AppCompatActivity {
     String uri = getString(R.string.yandex_url);
     Intent intent = new Intent(Intent.ACTION_VIEW);
     intent.setData(Uri.parse(uri));
-    startActivity(intent);
+    Intent newIntent = Intent.createChooser(intent, "");
+    startActivity(newIntent);
   }
 }
