@@ -2,6 +2,7 @@ package com.hamom.yandexschool.data.managers;
 
 import android.os.AsyncTask;
 import android.os.Handler;
+import android.os.HandlerThread;
 import android.os.Looper;
 import android.view.MenuItem;
 import com.hamom.yandexschool.data.local.database.DbManager;
@@ -33,6 +34,8 @@ public class DataManager {
   private DbManager mDbManager;
   private AppPreferencesManager mAppPreferencesManager;
   private ExecutorService mExecutor;
+  private Handler mWorkerHandler;
+  private Handler mUIHandler;
 
   @Inject
   public DataManager(RestService restService, DbManager dbManager,
@@ -41,6 +44,11 @@ public class DataManager {
     mRestService = restService;
     mAppPreferencesManager = preferencesManager;
     mExecutor = Executors.newSingleThreadExecutor();
+    mUIHandler = new Handler();
+    HandlerThread thread = new HandlerThread("data_manager_worker");
+    thread.start();
+    Looper looper = thread.getLooper();
+    mWorkerHandler = new Handler(looper);
   }
 
   //region===================== Translation ==========================
