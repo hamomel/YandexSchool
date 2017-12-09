@@ -12,14 +12,15 @@ import com.hamom.yandexschool.data.network.responce.TranslateRes;
 import com.hamom.yandexschool.utils.AppConfig;
 import com.hamom.yandexschool.utils.ConstantManager;
 import com.hamom.yandexschool.utils.errors.ApiError;
+
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+
 import javax.inject.Inject;
 import javax.inject.Singleton;
+
 import retrofit2.Call;
 import retrofit2.Response;
 
