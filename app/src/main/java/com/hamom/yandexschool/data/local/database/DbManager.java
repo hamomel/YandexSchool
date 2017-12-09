@@ -26,7 +26,25 @@ import static dagger.internal.Preconditions.checkNotNull;
 public class DbManager {
   private static String TAG = ConstantManager.TAG_PREFIX + "DbManager: ";
   private DbHelper mDbHelper;
+  private SQLiteDatabase mDb;
+  private volatile int mOpenCount;
 
+  synchronized private SQLiteDatabase getDb() {
+    if (mDb == null) {
+      mDb = mDbHelper.getWritableDatabase();
+    }
+    mOpenCount++;
+    return mDb;
+  }
+
+  synchronized private void closeDb() {
+    if (--mOpenCount == 0) {
+      mDb.close();
+      mDb = null;
+    }
+  }
+
+  // TODO: 07.12.17 make close db safe
   @Inject
   public DbManager(DbHelper dbHelper) {
     mDbHelper = dbHelper;
@@ -40,7 +58,7 @@ public class DbManager {
   public void saveTranslation(@NotNull Translation translation) {
     checkNotNull(translation);
 
-    SQLiteDatabase db = mDbHelper.getWritableDatabase();
+    SQLiteDatabase db = getDb();
     int favorite = (translation.isFavorite()) ? 1 : 0;
     ContentValues transValues = new ContentValues();
     transValues.put(TransEntry.COLUMN_NAME_WORD, translation.getWord());
@@ -57,7 +75,7 @@ public class DbManager {
       wordValues.put(WordEntry.COLUMN_NAME_TRANSLATION_ID, id);
       db.insert(WordEntry.TABLE_NAME, null, wordValues);
     }
-    db.close();
+    closeDb();
   }
 
   /**
@@ -66,7 +84,7 @@ public class DbManager {
   public Translation getTranslationFromDb(Translation translation) {
     if (AppConfig.DEBUG) Log.d(TAG, "getTranslationFromDb: " + Thread.currentThread().getName());
 
-    SQLiteDatabase readableDatabase = mDbHelper.getReadableDatabase();
+    SQLiteDatabase readableDatabase = getDb();
 
     String[] projection = {
         TransEntry.COLUMN_NAME_ID, TransEntry.COLUMN_NAME_WORD, TransEntry.COLUMN_NAME_DIRECTION,
@@ -85,7 +103,7 @@ public class DbManager {
     // if translation doesn't exist, return null
     if (c == null || !c.moveToFirst()) {
       if (c != null) c.close();
-      readableDatabase.close();
+      closeDb();
       return null;
     }
 
@@ -102,14 +120,14 @@ public class DbManager {
     translation.setTranslations(getTranslatedWords(longId));
 
     c.close();
-    readableDatabase.close();
+    closeDb();
 
     return translation;
   }
 
   private List<String> getTranslatedWords(long id) {
     List<String> list = new ArrayList<>();
-    SQLiteDatabase readableDatabase = mDbHelper.getReadableDatabase();
+    SQLiteDatabase readableDatabase = getDb();
 
     String[] projection = { WordEntry.COLUMN_NAME_WORD };
     String selection = WordEntry.COLUMN_NAME_TRANSLATION_ID + " LIKE ?";
@@ -134,7 +152,7 @@ public class DbManager {
   }
 
   public void updateTranslation(Translation translation) {
-    SQLiteDatabase db = mDbHelper.getWritableDatabase();
+    SQLiteDatabase db = getDb();
     int favorite = (translation.isFavorite()) ? 1 : 0;
     ContentValues transValues = new ContentValues();
     transValues.put(TransEntry.COLUMN_NAME_WORD, translation.getWord());
@@ -147,32 +165,32 @@ public class DbManager {
     String[] args = { id };
 
     db.update(TransEntry.TABLE_NAME, transValues, sel, args);
-    db.close();
+    closeDb();
   }
 
   public void deleteTranslation(Translation translation) {
     if (AppConfig.DEBUG) Log.d(TAG, "deleteTranslation: " + translation.getWord());
 
-    SQLiteDatabase writableDb = mDbHelper.getWritableDatabase();
+    SQLiteDatabase writableDb = getDb();
     String id = String.valueOf(translation.getId());
     String projection = TransEntry.COLUMN_NAME_ID + " LIKE ?";
     String[] args = new String[] { id };
     writableDb.delete(TransEntry.TABLE_NAME, projection, args);
-    writableDb.close();
+    closeDb();
   }
 
   public void deleteAllTranslations() {
-    SQLiteDatabase writableDb = mDbHelper.getWritableDatabase();
+    SQLiteDatabase writableDb = getDb();
     writableDb.delete(TransEntry.TABLE_NAME, null, null);
     writableDb.delete(WordEntry.TABLE_NAME, null, null);
-    writableDb.close();
+    closeDb();
   }
   //endregion
 
   //region===================== History ==========================
   public List<Translation> getAllHistory() {
     List<Translation> result = new ArrayList<>();
-    SQLiteDatabase readableDb = mDbHelper.getReadableDatabase();
+    SQLiteDatabase readableDb = getDb();
 
     String[] projection = {
         TransEntry.COLUMN_NAME_ID, TransEntry.COLUMN_NAME_WORD, TransEntry.COLUMN_NAME_DIRECTION,
@@ -198,13 +216,13 @@ public class DbManager {
     }
 
     c.close();
-    readableDb.close();
+    closeDb();
     return result;
   }
 
   public List<Translation> getFavoriteHistory() {
     List<Translation> result = new ArrayList<>();
-    SQLiteDatabase readableDb = mDbHelper.getReadableDatabase();
+    SQLiteDatabase readableDb = getDb();
 
     String[] projection = {
         TransEntry.COLUMN_NAME_ID, TransEntry.COLUMN_NAME_WORD, TransEntry.COLUMN_NAME_DIRECTION,
@@ -233,14 +251,14 @@ public class DbManager {
     }
 
     c.close();
-    readableDb.close();
+    closeDb();
     return result;
   }
   //endregion
 
   //region===================== Langs ==========================
   public void saveLangs(Map<String, String> langs) {
-    SQLiteDatabase writableDb = mDbHelper.getWritableDatabase();
+    SQLiteDatabase writableDb = getDb();
 
     for (Map.Entry<String, String> entry : langs.entrySet()) {
       ContentValues values = new ContentValues();
@@ -248,12 +266,12 @@ public class DbManager {
       values.put(LangEntry.COLUMN_NAME_NAME, entry.getValue());
       writableDb.insert(LangEntry.TABLE_NAME, null, values);
     }
-    writableDb.close();
+    closeDb();
   }
 
   public Map<String, String> getLangs() {
     Map<String, String> result = new HashMap<>();
-    SQLiteDatabase readableDb = mDbHelper.getReadableDatabase();
+    SQLiteDatabase readableDb = getDb();
 
     String[] projection = {
         LangEntry.COLUMN_NAME_CODE, LangEntry.COLUMN_NAME_NAME
@@ -268,7 +286,7 @@ public class DbManager {
       } while (c.moveToNext());
     }
     c.close();
-    readableDb.close();
+    closeDb();
     return result;
   }
   //endregion
